@@ -146,7 +146,7 @@ function bwp_display_booking_fields()
                 'label'       => '', // Remove label as we're using the h4 above
                 'required'    => true, // The hidden fields will be validated by JS population
                 'placeholder' => __('Select date', 'woocommerce'),
-                'custom_attributes' => array('readonly' => 'readonly', 'autocomplete' => 'off'), // Re-add readonly
+                'custom_attributes' => array('readonly' => 'readonly', 'autocomplete' => 'off', 'required' => 'required'), // Re-add readonly and make it required
             ),
             '' // Default value
         );
