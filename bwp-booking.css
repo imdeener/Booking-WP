@@ -1,0 +1,305 @@
+/* Booking Form Styles */
+.bwp-booking-fields {
+    /* font-family: 'Arial', sans-serif; */
+    width: 100%;
+    max-width: 100%;
+    /* margin-bottom: 30px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px; */
+}
+
+/* Main booking form styles */
+/* .bwp-booking-fields {
+    margin: 20px 0;
+} */
+
+.bwp-booking-form-row {
+    display: flex;
+    flex-direction: column;
+    /* flex-wrap: wrap; */
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Container styles */
+.bwp-booking-date-container,
+.bwp-booking-options-container {
+    background-color: var(--light);
+    border-radius: var(--radius-l);
+    padding: var(--space-s);
+    min-width: 200px;
+    border: 1px solid var(--gr-03);
+}
+
+.bwp-booking-date-container {
+    flex: 1;
+}
+
+.bwp-booking-options-container {
+    /* flex: 2; */
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.bwp-booking-quantity-section,
+.bwp-booking-departure-section {
+    padding: 5px 0;
+}
+
+/* Adjust spacing between quantity and departure sections */
+.bwp-booking-quantity-section {
+    /* margin-bottom: 5px;
+    border-bottom: 1px solid #f5f5f5;
+    padding-bottom: 15px; */
+}
+
+/* Field labels */
+.bwp-field-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 15px;
+    display: block;
+}
+
+/* Date field */
+.bwp-date-range-display-field {
+    width: 100%;
+    padding: 12px 15px 12px 40px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    position: relative;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 0 !important;
+}
+
+/* Calendar icon */
+.bwp-date-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.bwp-date-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: #ffffff;
+    fill: none;
+    background-color: #c59d5f;
+    padding: 4px;
+    border-radius: 3px;
+}
+
+/* Date dropdown arrow */
+.bwp-date-arrow {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.bwp-date-arrow svg {
+    width: 20px;
+    height: 20px;
+    stroke: #c59d5f;
+    fill: none;
+}
+
+/* Quantity section */
+.bwp-quantity-fields-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.bwp-adults-wrapper,
+.bwp-children-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.bwp-field-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    color: #888;
+}
+
+.bwp-field-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.bwp-adults-field, .bwp-children-field {
+    display: flex;
+    margin-bottom: 0 !important;
+    gap: var(--space-s);
+}
+
+.bwp-adults-field:before, .bwp-adults-field:after, .bwp-children-field:before , .bwp-children-field:after {
+    display: none !important;
+}
+
+/* Adults select field */
+.bwp-booking-quantity-section select {
+    border: none !important;
+    background: var(--be-03) !important;
+    border-radius: var(--radius-full) !important;
+    font-size: 14px;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="6"><path d="M0 0l6 6 6-6z" fill="%23666"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 15px center !important;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    height: 44px !important;
+    min-width: 102px;
+    padding: 7px 24px !important;
+    color: var(--light) !important;
+}
+
+.bwp-booking-quantity-section .woocommerce-input-wrapper, .bwp-booking-quantity-section .woocommerce-input-wrapper{
+    background: var(--be-03);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+/* Child button */
+.bwp-add-child-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f7f7f7;
+    color: #c59d5f;
+    border-radius: 50px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.child-icon {
+    margin-right: 5px;
+}
+
+.bwp-add-child-btn:hover {
+    background-color: #f0f0f0;
+    color: #b58d4f;
+}
+
+/* Hidden children field */
+.bwp-children-field.hidden {
+    display: none;
+}
+
+.bwp-children-field select {
+    padding: 10px 35px 10px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 14px;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="6"><path d="M0 0l6 6 6-6z" fill="%23666"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+/* Departure Location Radio Buttons */
+.bwp-departure-radio-wrapper {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.bwp-departure-radio-option {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.bwp-departure-radio-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.bwp-departure-radio-option label {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px 10px 50px;
+    border: 1px solid #e0e0e0;
+    border-radius: 50px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    min-width: 120px;
+    position: relative;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.bwp-departure-radio-option label:before {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border: 1px solid #c59d5f;
+    border-radius: 50%;
+    background-color: #fff;
+}
+
+.bwp-departure-radio-option input[type="radio"]:checked + label:before {
+    background-color: #c59d5f;
+}
+
+.bwp-departure-radio-option input[type="radio"]:checked + label:after {
+    content: "";
+    position: absolute;
+    left: 27px;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    width: 6px;
+    height: 10px;
+    border-bottom: 2px solid #fff;
+    border-right: 2px solid #fff;
+}
+
+/* Hide default WooCommerce field labels */
+.bwp-adults-field label,
+.bwp-children-field label {
+    display: none;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .bwp-quantity-fields-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .bwp-departure-radio-wrapper {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

@@ -196,6 +196,25 @@ jQuery(document).ready(function ($) {
     // Initial calculation
     calculate_price();
 
+    // Handle the Child button click
+    $('.bwp-add-child-btn').on('click', function(e) {
+        e.preventDefault();
+        // Show the children dropdown
+        $('.bwp-children-field').removeClass('hidden');
+        // Hide the button
+        $(this).hide();
+    });
+    
+    // Style the departure radio buttons
+    $('.bwp-departure-radio-option').on('click', function() {
+        // Remove selected class from all options
+        $('.bwp-departure-radio-option').removeClass('selected');
+        // Add selected class to clicked option
+        $(this).addClass('selected');
+        // Check the radio button
+        $(this).find('input[type="radio"]').prop('checked', true).trigger('change');
+    });
+    
     // Recalculate on change
     $('select[name="bwp_adults"], select[name="bwp_children"], input[name="bwp_departure_location"]').on('change', function () {
         calculate_price();

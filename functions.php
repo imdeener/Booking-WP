@@ -103,37 +103,66 @@ function bwp_display_booking_fields()
 
 
         // --- Generate Dropdown Options ---
-        // Adults
+        // Adults - Only numbers, no 'Adult' text
         $adult_options = array();
         $unique_adult_numbers = array_unique(array_merge(array(1), $acf_adult_numbers)); // Always include 1 adult
         sort($unique_adult_numbers, SORT_NUMERIC);
         foreach ($unique_adult_numbers as $num) {
             if ($num < 1) continue;
-            $adult_options[$num] = sprintf(_n('%s Adult', '%s Adults', $num, 'woocommerce'), $num);
+            $adult_options[$num] = $num; // Just the number
         }
         if (empty($adult_options)) { // Fallback if no tiers and 1 wasn't added (should not happen)
-            $adult_options[1] = sprintf(_n('%s Adult', '%s Adults', 1, 'woocommerce'), 1);
+            $adult_options[1] = 1; // Just the number
         }
 
-        // Children
+        // Children - Only numbers, no 'Children' text
         $child_options = array();
         $unique_child_numbers = array_unique(array_merge(array(0), $acf_child_numbers)); // Always include 0 children
         sort($unique_child_numbers, SORT_NUMERIC);
         foreach ($unique_child_numbers as $num) {
             if ($num < 0) continue;
-            if ($num == 0) {
-                $child_options[0] = __('0 Children', 'woocommerce');
-            } else {
-                $child_options[$num] = sprintf(_n('%s Child', '%s Children', $num, 'woocommerce'), $num);
-            }
+            $child_options[$num] = $num; // Just the number
         }
         if (empty($child_options)) { // Fallback
-            $child_options[0] = __('0 Children', 'woocommerce');
+            $child_options[0] = 0; // Just the number
         }
 
         // --- Display Fields ---
         echo '<div class="bwp-booking-fields">';
-
+        
+        // Main booking form row - contains all fields in a flex layout
+        echo '<div class="bwp-booking-form-row">';
+        
+        // Date Field
+        echo '<div class="bwp-booking-date-container">';
+        echo '<h4 class="bwp-field-label">' . esc_html__('Date', 'woocommerce') . '</h4>';
+        
+        // This is the visible input field for Litepicker
+        woocommerce_form_field(
+            'bwp_date_range_display', // Name for the display field, not directly used by backend for dates
+            array(
+                'type'        => 'text',
+                'class'       => array('form-row-wide', 'bwp-date-range-display-field'),
+                'label'       => '', // Remove label as we're using the h4 above
+                'required'    => true, // The hidden fields will be validated by JS population
+                'placeholder' => __('Select date', 'woocommerce'),
+                'custom_attributes' => array('readonly' => 'readonly', 'autocomplete' => 'off'), // Re-add readonly
+            ),
+            '' // Default value
+        );
+        echo '</div>'; // end .bwp-booking-date-container
+        
+        // Quantity and Departure Container
+        echo '<div class="bwp-booking-options-container">';
+        
+        // Quantity Section (Adults and Children)
+        echo '<div class="bwp-booking-quantity-section">';
+        echo '<h4 class="bwp-field-label">' . esc_html__('Quantity', 'woocommerce') . '</h4>';
+        
+        echo '<div class="bwp-quantity-fields-wrapper">';
+        // Adults Field
+        echo '<div class="bwp-adults-wrapper">';
+        echo '<span class="bwp-field-icon"><svg width="24" height="24" viewBox="0 0 41 40" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_2072_56315)"><path fill-rule="evenodd" clip-rule="evenodd" d="M28.2832 21.8848C30.5665 23.4348 32.1665 25.5348 32.1665 28.3348V33.3348H38.8332V28.3348C38.8332 24.7014 32.8832 22.5514 28.2832 21.8848Z" fill="#BC9061"/><path d="M15.5007 20.0013C19.1825 20.0013 22.1673 17.0165 22.1673 13.3346C22.1673 9.65274 19.1825 6.66797 15.5007 6.66797C11.8188 6.66797 8.83398 9.65274 8.83398 13.3346C8.83398 17.0165 11.8188 20.0013 15.5007 20.0013Z" fill="#BC9061"/><path fill-rule="evenodd" clip-rule="evenodd" d="M25.4999 20.0013C29.1832 20.0013 32.1665 17.018 32.1665 13.3346C32.1665 9.6513 29.1832 6.66797 25.4999 6.66797C24.7165 6.66797 23.9832 6.83464 23.2832 7.06797C24.6665 8.78463 25.4999 10.968 25.4999 13.3346C25.4999 15.7013 24.6665 17.8846 23.2832 19.6013C23.9832 19.8346 24.7165 20.0013 25.4999 20.0013Z" fill="#BC9061"/><path fill-rule="evenodd" clip-rule="evenodd" d="M15.5003 21.668C11.0503 21.668 2.16699 23.9013 2.16699 28.3346V33.3346H28.8337V28.3346C28.8337 23.9013 19.9503 21.668 15.5003 21.668Z" fill="#BC9061"/></g><defs><clipPath id="clip0_2072_56315"><rect width="40" height="40" fill="white" transform="translate(0.5)"/></clipPath></defs></svg></span>'; // Adult icon SVG
         woocommerce_form_field(
             'bwp_adults',
             array(
@@ -142,66 +171,62 @@ function bwp_display_booking_fields()
                 'label'       => __('Adults', 'woocommerce'),
                 'required'    => true,
                 'options'     => $adult_options,
-                'default'     => 1,
+                'default'     => 5, // Set default to 5 as shown in the image
             ),
-            1 // Default value
+            5 // Default value set to 5
         );
-
+        echo '</div>'; // end .bwp-adults-wrapper
+        
+        // Child Field - Styled as a button in the image
+        echo '<div class="bwp-children-wrapper">';
+        echo '<a href="#" class="bwp-add-child-btn"><svg width="16" height="16" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="child-icon"><g clip-path="url(#clip0_2072_56335)"><path d="M25.8331 17.3327H17.8331V25.3327H15.1664V17.3327H7.16641V14.666H15.1664V6.66602H17.8331V14.666H25.8331V17.3327Z" fill="#AEAEAE"/></g><defs><clipPath id="clip0_2072_56335"><rect width="32" height="32" fill="white" transform="translate(0.5)"/></clipPath></defs></svg> ' . esc_html__('Child', 'woocommerce') . '</a>';
+        // Hidden select that will be shown when the button is clicked
         woocommerce_form_field(
             'bwp_children',
             array(
                 'type'        => 'select',
-                'class'       => array('form-row-wide', 'bwp-children-field'),
-                'label'       => __('Children', 'woocommerce'),
+                'class'       => array('form-row-wide', 'bwp-children-field', 'hidden'),
+                'label'       => '',
                 'required'    => false,
                 'options'     => $child_options,
                 'default'     => 0,
             ),
             0 // Default value
         );
-
-        // Departure Location Dropdown - Now with fixed options
-        // $departure_options_for_frontend is already defined above
-        // $default_departure_location is also defined above as 'phuket'
+        echo '</div>'; // end .bwp-children-wrapper
+        echo '</div>'; // end .bwp-quantity-fields-wrapper
+        echo '</div>'; // end .bwp-booking-quantity-section
+        
+        // Departure Section
+        echo '<div class="bwp-booking-departure-section">';
+        echo '<h4 class="bwp-field-label">' . esc_html__('Departure', 'woocommerce') . '</h4>';
+        
+        // Departure Location Radio Buttons
         if (!empty($departure_options_for_frontend)) {
             echo '<div class="form-row form-row-wide bwp-departure-field validate-required" id="bwp_departure_location_radio_field" data-priority="">';
-            echo '<label class="required_field">' . esc_html__('Departure From', 'woocommerce') . '&nbsp;<span class="required" aria-hidden="true">*</span></label>';
             echo '<div class="woocommerce-input-wrapper bwp-departure-radio-wrapper">';
-            $first_option = true; // To check the default one
             foreach ($departure_options_for_frontend as $value => $label) {
-                // $default_departure_location is 'phuket'
-                // The $value will be 'phuket' or 'khaolak'
                 $is_checked = ($default_departure_location === $value);
-
-                echo '<span class="bwp-departure-radio-option">'; // Wrapper for styling each radio option
+                
+                echo '<div class="bwp-departure-radio-option' . ($is_checked ? ' selected' : '') . '">'; // Wrapper with selected class
                 echo '<input type="radio" class="input-radio bwp_departure_location_radio" value="' . esc_attr($value) . '" name="bwp_departure_location" id="bwp_departure_location_' . esc_attr($value) . '" ' . checked($is_checked, true, false) . '>';
-                echo '<label for="bwp_departure_location_' . esc_attr($value) . '" class="radio"> ' . esc_html($label) . '</label>'; // Added a space before label for better default styling
-                echo '</span>';
+                echo '<label for="bwp_departure_location_' . esc_attr($value) . '" class="radio">' . esc_html($label) . '</label>';
+                echo '</div>';
             }
             echo '</div>'; // end .woocommerce-input-wrapper
             echo '</div>'; // end .form-row
         }
-
-        echo '<h4 class="bwp-section-title">' . esc_html__('Select Booking Dates', 'woocommerce') . '</h4>';
-
-        // This is the visible input field for Litepicker
-        woocommerce_form_field(
-            'bwp_date_range_display', // Name for the display field, not directly used by backend for dates
-            array(
-                'type'        => 'text',
-                'class'       => array('form-row-wide', 'bwp-date-range-display-field'),
-                'label'       => __('Booking Dates', 'woocommerce'), // Single label for the range
-                'required'    => true, // The hidden fields will be validated by JS population
-                'placeholder' => __('Select date range', 'woocommerce'),
-                'custom_attributes' => array('readonly' => 'readonly', 'autocomplete' => 'off'), // Re-add readonly
-            ),
-            '' // Default value
-        );
-
+        echo '</div>'; // end .bwp-booking-departure-section
+        
+        echo '</div>'; // end .bwp-booking-options-container
+        
+        echo '</div>'; // end .bwp-booking-form-row
+        
         // Hidden fields to store actual start and end dates for backend processing
         // Their 'name' attributes match what the backend PHP already expects.
         echo '<input type="hidden" name="bwp_start_date" id="bwp_start_date_hidden">';
         echo '<input type="hidden" name="bwp_end_date" id="bwp_end_date_hidden">';
+        
 
         echo '</div>';
 
@@ -225,6 +250,9 @@ function bwp_enqueue_scripts()
         // Enqueue Litepicker from CDN
         wp_enqueue_style('litepicker-css', 'https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css');
         wp_enqueue_script('litepicker-js', 'https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js', array(), '1.1.2', true); // Added version for Litepicker
+        
+        // Enqueue our custom booking styles
+        wp_enqueue_style('bwp-booking-css', get_stylesheet_directory_uri() . '/bwp-booking.css', array(), '1.0.0');
 
         // Ensure bwp-booking-js depends on litepicker-js.
         wp_enqueue_script('bwp-booking-js', get_stylesheet_directory_uri() . '/bwp-booking.js', array('jquery', 'litepicker-js'), '1.0.2', true); // Version bump & dep update
@@ -248,9 +276,8 @@ function bwp_add_cart_item_data($cart_item_data, $product_id, $variation_id)
     if (isset($_POST['bwp_adults'])) {
         $cart_item_data['bwp_adults'] = intval(sanitize_text_field($_POST['bwp_adults']));
     }
-    if (isset($_POST['bwp_children'])) {
-        $cart_item_data['bwp_children'] = intval(sanitize_text_field($_POST['bwp_children']));
-    }
+    // Always add children value, even if it's 0
+    $cart_item_data['bwp_children'] = isset($_POST['bwp_children']) ? intval(sanitize_text_field($_POST['bwp_children'])) : 0;
     if (isset($_POST['bwp_departure_location']) && !empty($_POST['bwp_departure_location'])) {
         $cart_item_data['bwp_departure_location'] = sanitize_text_field($_POST['bwp_departure_location']);
     }
@@ -353,7 +380,6 @@ function bwp_calculate_cart_item_price($cart_object)
 }
 add_action('woocommerce_before_calculate_totals', 'bwp_calculate_cart_item_price', 20, 1);
 
-
 /**
  * Display booking data in cart and checkout
  */
@@ -366,7 +392,8 @@ function bwp_display_cart_item_booking_data($item_data, $cart_item)
             'display' => '',
         );
     }
-    if (isset($cart_item['bwp_children']) && $cart_item['bwp_children'] > 0) {
+    // Always display children value, even when it's 0
+    if (isset($cart_item['bwp_children'])) {
         $item_data[] = array(
             'key'     => __('Children', 'woocommerce'),
             'value'   => $cart_item['bwp_children'],
@@ -430,7 +457,8 @@ function bwp_add_order_item_meta($item, $cart_item_key, $values, $order)
     if (isset($values['bwp_adults'])) {
         $item->add_meta_data(__('Adults', 'woocommerce'), $values['bwp_adults']);
     }
-    if (isset($values['bwp_children']) && $values['bwp_children'] > 0) {
+    // Always add children value to order meta, even when it's 0
+    if (isset($values['bwp_children'])) {
         $item->add_meta_data(__('Children', 'woocommerce'), $values['bwp_children']);
     }
 
