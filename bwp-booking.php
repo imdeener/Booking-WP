@@ -171,9 +171,9 @@ function bwp_display_booking_fields()
                 'label'       => __('Adults', 'woocommerce'),
                 'required'    => true,
                 'options'     => $adult_options,
-                'default'     => 5, // Set default to 5 as shown in the image
+                'default'     => 1, // Set default to 1 as shown in the image
             ),
-            5 // Default value set to 5
+            1 // Default value set to 1
         );
         echo '</div>'; // end .bwp-adults-wrapper
         
