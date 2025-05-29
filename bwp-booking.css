@@ -15,12 +15,17 @@
     margin: 20px 0;
 } */
 
+.booking-info__left--sale {
+    .bwp-booking-form-row {
+        flex-direction: column;
+    }
+}
+
 .bwp-booking-form-row {
     display: flex;
-    flex-direction: column;
-    /* flex-wrap: wrap; */
-    gap: 20px;
-    margin-bottom: 20px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-s);
 }
 
 /* Container styles */
@@ -68,7 +73,7 @@
 
 /* Date field */
 .bwp-date-range-display-field {
-    width: 100%;
+    width: fit-content;
     padding: 12px 15px 12px 40px;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
