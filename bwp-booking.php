@@ -392,8 +392,8 @@ function bwp_display_cart_item_booking_data($item_data, $cart_item)
             'display' => '',
         );
     }
-    // Always display children value, even when it's 0
-    if (isset($cart_item['bwp_children'])) {
+    // Only display children value when it's greater than 0
+    if (isset($cart_item['bwp_children']) && $cart_item['bwp_children'] > 0) {
         $item_data[] = array(
             'key'     => __('Children', 'woocommerce'),
             'value'   => $cart_item['bwp_children'],
@@ -457,8 +457,8 @@ function bwp_add_order_item_meta($item, $cart_item_key, $values, $order)
     if (isset($values['bwp_adults'])) {
         $item->add_meta_data(__('Adults', 'woocommerce'), $values['bwp_adults']);
     }
-    // Always add children value to order meta, even when it's 0
-    if (isset($values['bwp_children'])) {
+    // Only add children value to order meta when it's greater than 0
+    if (isset($values['bwp_children']) && $values['bwp_children'] > 0) {
         $item->add_meta_data(__('Children', 'woocommerce'), $values['bwp_children']);
     }
 
