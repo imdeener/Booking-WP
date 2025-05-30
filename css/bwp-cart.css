@@ -1,0 +1,173 @@
+/* BWP Cart Styles */
+
+/* Common Styles */
+.bwp-booking-section,
+.bwp-customer-information,
+.bwp-order-summary {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+/* Your Booking Section */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.booking-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.booking-image img {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.booking-details {
+    flex: 1;
+}
+
+.booking-meta {
+    color: #666;
+    font-size: 14px;
+}
+
+.remove-item a {
+    color: #ff4444;
+    text-decoration: none;
+    font-size: 20px;
+}
+
+/* Add-on Bundles */
+.add-on-bundles {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #eee;
+}
+
+/* Customer Information Form */
+.form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-group {
+    flex: 1;
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+
+
+
+
+/* Submit Button */
+.submit-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 24px;
+    transition: background-color 0.2s;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
+
+.submit-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Order Summary */
+
+
+.summary-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.item-image img {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.item-details {
+    flex: 1;
+}
+
+.order-totals {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.order-totals > div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.total {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+}
+
+.refund-policy {
+    margin-top: 24px;
+    padding: 16px;
+    background: #f8f8f8;
+    border-radius: 6px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .booking-item {
+        flex-direction: column;
+    }
+    
+    .booking-image img {
+        width: 100%;
+        height: auto;
+    }
+}
