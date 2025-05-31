@@ -187,10 +187,10 @@ function bwp_your_booking_shortcode() {
                                     </div>
                                 </div>
                             </div>
-                            <div class="booking-price">
-                                <div class="total-price" data-item-key="<?php echo esc_attr($cart_item_key); ?>">
-                                    <span class="price"><?php echo wc_price($total_price); ?></span>
-                                </div>
+                        </div>
+                        <div class="booking-price">
+                            <div class="total-price" data-item-key="<?php echo esc_attr($cart_item_key); ?>">
+                                <span class="price"><?php echo wc_price($total_price); ?></span>
                             </div>
                         </div>
                         <div class="remove-item">

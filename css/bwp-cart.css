@@ -18,6 +18,7 @@
 }
 
 .booking-item {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
@@ -106,10 +107,24 @@
     color: #666;
 }
 
+.remove-item {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--error);
+    border-radius: var(--radius-full);
+}
+
 .remove-item a {
-    color: #ff4444;
+    color: var(--light);
     text-decoration: none;
-    font-size: 20px;
+    font-size: 24px;
+    line-height: 1;
 }
 
 /* Add-on Bundles */
@@ -120,6 +135,13 @@
 }
 
 /* Customer Information Form */
+
+.bwp-customer-form {
+    .form-row::before, .form-row::after {
+        display: none !important;
+    }
+}
+
 .form-row {
     display: flex;
     gap: 16px;
@@ -206,6 +228,8 @@
 }
 
 .booking-price {
+    display: flex;
+    align-items: center;
     font-size: 1.1em;
     color: #333;
 }
@@ -237,9 +261,6 @@
     font-size: 1.3em;
     font-weight: bold;
     color: #2c5282;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #eee;
 }
 
 .total {
