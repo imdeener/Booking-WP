@@ -306,7 +306,10 @@ function bwp_order_summary_shortcode() {
     ob_start();
     ?>
     <div class="bwp-order-summary">
-        <div class="section-header"><h2>Order Summary</h2></div>
+        <div class="section-header">
+            <h2>Order Summary</h2>
+            <div class="total-bookings">Total: <?php echo count(WC()->cart->get_cart()); ?> Bookings</div>
+        </div>
 
         <?php
         $cart = WC()->cart;

@@ -235,8 +235,6 @@
 .bwp-order-summary {
     background: #fff;
     padding: 20px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
 }
 
 .summary-item {
@@ -297,7 +295,6 @@
 .item-image {
     width: 80px;
     height: 80px;
-    border-radius: var(--radius);
     overflow: hidden;
 }
 
@@ -371,6 +368,24 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 8px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 1.5em;
+    color: #333;
+}
+
+.total-bookings {
+    color: #666;
+    font-size: 0.9em;
 }
 
 .booking-price {
