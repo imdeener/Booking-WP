@@ -320,12 +320,23 @@ function bwp_order_summary_shortcode() {
                     </div>
                     <div class="item-details">
                         <h4><?php echo $product->get_name(); ?></h4>
-                        <div class="item-meta">
-                            <?php
-                            if (isset($cart_item['booking_date'])) {
-                                echo '<span class="date">' . esc_html($cart_item['booking_date']) . '</span>';
-                            }
-                            ?>
+                        <div class="booking-meta">
+                            <?php if (isset($cart_item['bwp_start_date'])): ?>
+                                <div class="date"><i class="fas fa-calendar"></i> <?php echo esc_html($cart_item['bwp_start_date']); ?></div>
+                            <?php endif; ?>
+                            
+                            <div class="guests">
+                                <div class="guest-type adults">
+                                    <i class="fas fa-user"></i>
+                                    <span class="guest-count" data-item-key="<?php echo esc_attr($cart_item_key); ?>" data-type="adults"><?php echo isset($cart_item['bwp_adults']) ? $cart_item['bwp_adults'] : 0; ?></span>
+                                    <span class="guest-label">Adults</span>
+                                </div>
+                                <div class="guest-type children">
+                                    <i class="fas fa-child"></i>
+                                    <span class="guest-count" data-item-key="<?php echo esc_attr($cart_item_key); ?>" data-type="children"><?php echo isset($cart_item['bwp_children']) ? $cart_item['bwp_children'] : 0; ?></span>
+                                    <span class="guest-label">Children</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="item-price">

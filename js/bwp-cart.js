@@ -87,8 +87,14 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 console.log('AJAX success response:', response);
                 if (response.success) {
-                    // Update quantity display
+                    // Update quantity display in Your Booking section
                     button.siblings('.quantity').text(response.data.new_value);
+                    
+                    // Update quantity in Order Summary
+                    const summaryGuestCount = $(`.guest-count[data-item-key="${itemKey}"][data-type="${type}"]`);
+                    if (summaryGuestCount.length) {
+                        summaryGuestCount.text(response.data.new_value);
+                    }
                     
                     // Update item price
                     const itemPriceElement = $('.total-price[data-item-key="' + itemKey + '"]');
