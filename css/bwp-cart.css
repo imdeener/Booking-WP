@@ -207,11 +207,55 @@
     display: flex;
     gap: 16px;
     padding: 16px 0;
-    border-bottom: 1px solid #eee;
 }
 
 .summary-item:last-child {
     border-bottom: none;
+}
+
+.coupon-form {
+    margin-bottom: 24px;
+}
+
+.coupon-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.coupon-input-group input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.coupon-input-group .apply-coupon-btn {
+    padding: 8px 16px;
+    background-color: #1a1a1a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.coupon-input-group .apply-coupon-btn:hover {
+    background-color: #333;
+}
+
+.coupon-message {
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+.coupon-message.success {
+    color: #28a745;
+}
+
+.coupon-message.error {
+    color: #dc3545;
 }
 
 .item-image {

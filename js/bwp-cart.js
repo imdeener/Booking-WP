@@ -190,6 +190,76 @@ jQuery(document).ready(function($) {
         });
     });
     
+    // Handle coupon application
+    $('.apply-coupon-btn').on('click', function() {
+        const button = $(this);
+        const couponInput = $('#coupon_code');
+        const couponCode = couponInput.val().trim();
+        const messageContainer = $('.coupon-message');
+        const discountRow = $('.order-totals .discount');
+
+        if (!couponCode) {
+            messageContainer.removeClass('success').addClass('error').text('Please enter a coupon code');
+            return;
+        }
+
+        // Check if a coupon is already applied
+        if (discountRow.is(':visible')) {
+            messageContainer.removeClass('success').addClass('error').text('A coupon is already applied. Please remove it first.');
+            return;
+        }
+
+        // Disable button during request
+        button.prop('disabled', true);
+        messageContainer.removeClass('success error').text('Applying coupon...');
+
+        $.ajax({
+            url: bwp_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'bwp_apply_coupon',
+                nonce: bwp_ajax.coupon_nonce,
+                coupon_code: couponCode
+            },
+            success: function(response) {
+                if (response.success) {
+                    messageContainer.removeClass('error').addClass('success').text(response.data.message);
+                    couponInput.val('');
+
+                    // Update discount and total
+                    const discountRow = $('.order-totals .discount');
+                    if (response.data.discount > 0) {
+                        if (discountRow.length === 0) {
+                            $('.order-totals .subtotal').after(
+                                '<div class="discount">' +
+                                '<span class="label">Discount</span>' +
+                                '<span class="discount-amount">-' + response.data.discount_formatted + '</span>' +
+                                '</div>'
+                            );
+                        } else {
+                            discountRow.find('.discount-amount').html('-' + response.data.discount_formatted);
+                        }
+                        discountRow.show();
+                    } else {
+                        discountRow.hide();
+                    }
+
+                    // Update total
+                    $('.order-totals .total-amount').html(response.data.total_formatted);
+                } else {
+                    messageContainer.removeClass('success').addClass('error').text(response.data.message || 'Error applying coupon');
+                }
+            },
+            error: function(xhr, status, error) {
+                messageContainer.removeClass('success').addClass('error').text('Error applying coupon. Please try again.');
+                console.error('Coupon AJAX error:', {status, error, response: xhr.responseText});
+            },
+            complete: function() {
+                button.prop('disabled', false);
+            }
+        });
+    });
+
     // Handle remove item clicks
     $('.remove-item a').click(function(e) {
         e.preventDefault();

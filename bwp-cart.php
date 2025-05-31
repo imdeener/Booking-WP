@@ -419,20 +419,38 @@ function bwp_order_summary_shortcode() {
         // Save cart data
         $cart->set_session();
         
-        // Calculate cart totals
-        $cart->calculate_totals();
-        
         // Calculate totals from cart items
         $subtotal = 0;
         $total = 0;
+        $discount = 0;
+        
+        // Calculate subtotal first
         foreach ($cart->get_cart() as $item) {
             $subtotal += $item['line_subtotal'];
-            $total += $item['line_total'];
         }
         
-        // Get discount
-        $discount = $cart->get_discount_total();
+        // Calculate discount if coupon is applied
+        if ($cart->has_discount()) {
+            $coupons = $cart->get_applied_coupons();
+            if (!empty($coupons)) {
+                $coupon = new WC_Coupon($coupons[0]);
+                if ($coupon && $coupon->is_valid() && $coupon->get_discount_type() === 'percent') {
+                    $discount = ($subtotal * $coupon->get_amount()) / 100;
+                }
+            }
+        }
+        
+        // Calculate final total
+        $total = $subtotal - $discount;
         ?>
+        <div class="coupon-form">
+            <div class="coupon-input-group">
+                <input type="text" id="coupon_code" class="input-text" placeholder="Enter coupon code" />
+                <button type="button" class="apply-coupon-btn">Apply</button>
+            </div>
+            <div class="coupon-message"></div>
+        </div>
+
         <div class="order-totals">
             <div class="subtotal">
                 <span class="label">Subtotal</span>
@@ -468,7 +486,8 @@ function bwp_cart_enqueue_styles() {
     wp_localize_script('bwp-cart-script', 'bwp_ajax', array(
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('bwp_update_guest_quantity'),
-        'customer_nonce' => wp_create_nonce('bwp_save_customer_info')
+        'customer_nonce' => wp_create_nonce('bwp_save_customer_info'),
+        'coupon_nonce' => wp_create_nonce('bwp_nonce')
     ));
 }
 add_action('wp_enqueue_scripts', 'bwp_cart_enqueue_styles');
@@ -851,36 +870,40 @@ function bwp_update_guest_quantity() {
     $cart->cart_contents[$cart_item_key]['bwp_adults'] = $adults;
     $cart->cart_contents[$cart_item_key]['bwp_children'] = $children;
     $cart->cart_contents[$cart_item_key]['total_price'] = $total_price;
-    $cart->cart_contents[$cart_item_key]['line_total'] = $total_price;
     $cart->cart_contents[$cart_item_key]['line_subtotal'] = $total_price;
+    $cart->cart_contents[$cart_item_key]['line_total'] = $total_price; // เก็บราคาเต็มไว้ใน line_total ด้วย เพราะจะคำนวณส่วนลดรวมทีเดียวตอนแสดงผล
     $cart->cart_contents[$cart_item_key]['data']->set_price($total_price);
     
     // Save cart data
     $cart->set_session();
     
-    // Calculate cart totals
-    $cart->calculate_totals();
-    
     // Get order summary data
     $subtotal = 0;
     $total = 0;
+    $discount_total = 0;
     
     // Calculate totals from cart items
     foreach ($cart->get_cart() as $item) {
         $subtotal += $item['line_subtotal'];
-        $total += $item['line_total'];
     }
     
-    $cart_totals = array(
-        'subtotal' => $subtotal,
-        'total' => $total
-    );
-
-    // Get discount if any
-    $discount_total = WC()->cart->get_discount_total();
+    // ดึงข้อมูลคูปองและคำนวณส่วนลด
+    $coupons = $cart->get_applied_coupons();
+    if (!empty($coupons)) {
+        $coupon_code = $coupons[0];
+        $coupon = new WC_Coupon($coupon_code);
+        if ($coupon && $coupon->is_valid() && $coupon->get_discount_type() === 'percent') {
+            $discount_total = ($subtotal * $coupon->get_amount()) / 100;
+            $total = $subtotal - $discount_total;
+        }
+    } else {
+        $total = $subtotal;
+    }
+    
+    // สร้าง response
     $cart_totals_response = array(
-        'subtotal' => wc_price($cart_totals['subtotal']),
-        'total' => wc_price($cart_totals['total'])
+        'subtotal' => wc_price($subtotal),
+        'total' => wc_price($total)
     );
 
     if ($discount_total > 0) {
@@ -896,3 +919,68 @@ function bwp_update_guest_quantity() {
 
 add_action('wp_ajax_bwp_update_guest_quantity', 'bwp_update_guest_quantity');
 add_action('wp_ajax_nopriv_bwp_update_guest_quantity', 'bwp_update_guest_quantity');
+
+// AJAX handler for applying coupons
+function bwp_apply_coupon() {
+    check_ajax_referer('bwp_nonce', 'nonce');
+    $coupon_code = sanitize_text_field($_POST['coupon_code']);
+    if (empty($coupon_code)) {
+        wp_send_json_error(array('message' => 'Please enter a coupon code'));
+    }
+    
+    $cart = WC()->cart;
+    if ($cart->has_discount()) {
+        wp_send_json_error(array('message' => 'A coupon is already applied. Please remove it first.'));
+    }
+
+    // Get WooCommerce cart
+    $cart = WC()->cart;
+
+    // Remove all existing coupons first
+    $cart->remove_coupons();
+
+    // Try to apply the coupon
+    $result = $cart->apply_coupon($coupon_code);
+
+    // Get WooCommerce cart
+    $cart = WC()->cart;
+    $cart->remove_coupons();
+    $result = $cart->apply_coupon($coupon_code);
+
+    if ($result) {
+        // Calculate totals from cart items
+        $subtotal = 0;
+        foreach ($cart->get_cart() as $item) {
+            $subtotal += $item['line_subtotal'];
+        }
+
+        // Get coupon object
+        $coupons = $cart->get_applied_coupons();
+        $discount = 0;
+        if (!empty($coupons)) {
+            $coupon = new WC_Coupon($coupons[0]);
+            if ($coupon && $coupon->is_valid() && $coupon->get_discount_type() === 'percent') {
+                $discount = round(($subtotal * $coupon->get_amount()) / 100, 2);
+            }
+        }
+
+        // Calculate final total
+        $total = round($subtotal - $discount, 2);
+        
+        // Update cart totals
+        $cart->calculate_totals();
+
+        wp_send_json_success(array(
+            'message' => 'Coupon applied successfully!',
+            'discount' => $discount,
+            'discount_formatted' => wc_price($discount),
+            'total' => $total,
+            'total_formatted' => wc_price($total)
+        ));
+    } else {
+        wp_send_json_error(array('message' => 'Invalid coupon code. Please try again.'));
+    }
+}
+
+add_action('wp_ajax_bwp_apply_coupon', 'bwp_apply_coupon');
+add_action('wp_ajax_nopriv_bwp_apply_coupon', 'bwp_apply_coupon');
