@@ -29,6 +29,23 @@ function bwp_your_booking_shortcode() {
             <h2>Your Booking</h2>
             <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>">All Tours</a>
         </div>
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteConfirmationModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="#E94E4E"/>
+                    </svg>
+                </div>
+                <h2>Deleting <span id="deleteItemCount">1</span> Items</h2>
+                <div id="deleteItemDetails" class="delete-item-details"></div>
+                <div class="modal-actions">
+                    <button class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+                    <button class="confirm-delete-btn" onclick="confirmDelete()">Confirm Delete</button>
+                </div>
+            </div>
+        </div>
+
         <div class="booking-items">
             <?php
             $cart = WC()->cart;
@@ -107,10 +124,17 @@ function bwp_your_booking_shortcode() {
                     ?>
                     <div class="booking-item">
                         <div class="booking-image">
-                            <?php echo $product->get_image('thumbnail'); ?>
+                            <?php 
+                            $image_html = $product->get_image('thumbnail');
+                            // Add class to img tag
+                            $image_html = str_replace('<img', '<img class="booking-img"', $image_html);
+                            echo $image_html;
+                            ?>
                         </div>
                         <div class="booking-details">
-                            <h3><?php echo $product->get_name(); ?></h3>
+                            <div class="product-title">
+                                <h3 class="booking-title"><?php echo get_the_title($product_id); ?></h3>
+                            </div>
                             <div class="booking-meta">
                                 <?php if ($booking_date): ?>
                                     <div class="date"><i class="fas fa-calendar"></i> <?php echo esc_html($booking_date); ?></div>
@@ -165,7 +189,7 @@ function bwp_your_booking_shortcode() {
                             </div>
                             <div class="booking-price">
                                 <div class="total-price" data-item-key="<?php echo esc_attr($cart_item_key); ?>">
-                                    <?php echo wc_price($total_price); ?>
+                                    <span class="price"><?php echo wc_price($total_price); ?></span>
                                 </div>
                             </div>
                         </div>

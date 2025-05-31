@@ -1,4 +1,43 @@
 jQuery(document).ready(function($) {
+    let itemToDelete = null;
+
+    // Delete confirmation modal functions
+    function showDeleteModal(item) {
+        itemToDelete = item;
+        const modal = document.getElementById('deleteConfirmationModal');
+        const itemDetails = document.getElementById('deleteItemDetails');
+        
+        // Get item details
+        const title = item.closest('.booking-item').querySelector('.booking-title').textContent;
+        const price = item.closest('.booking-item').querySelector('.total-price .price').textContent;
+        const image = item.closest('.booking-item').querySelector('.booking-img').src;
+        
+        // Update modal content
+        itemDetails.innerHTML = `
+            <div class="item">
+                <img src="${image}" alt="${title}">
+                <div class="item-info">
+                    <div class="item-title">${title}</div>
+                    <div class="item-price">${price}</div>
+                </div>
+            </div>
+        `;
+        
+        modal.classList.add('show');
+    }
+    
+    window.closeDeleteModal = function() {
+        const modal = document.getElementById('deleteConfirmationModal');
+        modal.classList.remove('show');
+        itemToDelete = null;
+    }
+    
+    window.confirmDelete = function() {
+        if (itemToDelete) {
+            window.location.href = itemToDelete.href;
+        }
+        closeDeleteModal();
+    }
     // Handle quantity button clicks
     $('.quantity-btn').on('click', function() {
         const button = $(this);
@@ -117,6 +156,12 @@ jQuery(document).ready(function($) {
                 button.closest('.guest-type').find('.quantity-btn').prop('disabled', false);
             }
         });
+    });
+    
+    // Handle remove item clicks
+    $('.remove-item a').click(function(e) {
+        e.preventDefault();
+        showDeleteModal(this);
     });
     
     // Form validation
