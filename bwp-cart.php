@@ -26,6 +26,74 @@ function bwp_your_booking_shortcode() {
                 foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
                     $product = $cart_item['data'];
                     $product_id = $product->get_id();
+                    $quantity = $cart_item['quantity'];
+                    $adults = isset($cart_item['bwp_adults']) ? intval($cart_item['bwp_adults']) : 0;
+                    $children = isset($cart_item['bwp_children']) ? intval($cart_item['bwp_children']) : 0;
+                    
+                    // Get base price
+                    $original_product = wc_get_product($product_id);
+                    $base_price = floatval($original_product->get_price('edit'));
+                    
+                    // Calculate additional costs
+                    $additional_adult_price = 0;
+                    $additional_child_price = 0;
+                    $additional_departure_price = 0;
+                    
+                    if (function_exists('get_field')) {
+                        // Get departure price
+                        if (isset($cart_item['bwp_departure_location']) && !empty($cart_item['bwp_departure_location'])) {
+                            $selected_location = $cart_item['bwp_departure_location'];
+                            $departure_group = get_field('departure', $product_id);
+                            
+                            if ($departure_group) {
+                                if ($selected_location === 'phuket') {
+                                    $price_val = isset($departure_group['phuket_additional_price']) ? $departure_group['phuket_additional_price'] : 0;
+                                } elseif ($selected_location === 'khaolak') {
+                                    $price_val = isset($departure_group['khaolak_additional_price']) ? $departure_group['khaolak_additional_price'] : 0;
+                                }
+                                if (is_numeric($price_val)) {
+                                    $additional_departure_price = floatval($price_val);
+                                }
+                            }
+                        }
+                        
+                        // Get adult tier price
+                        if ($adults >= 2) {
+                            $adult_tiers = get_field('adult_price_tiers', $product_id);
+                            if ($adult_tiers) {
+                                foreach ($adult_tiers as $tier) {
+                                    if (isset($tier['number_of_adults']) && intval($tier['number_of_adults']) == $adults) {
+                                        if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
+                                            $additional_adult_price = floatval($tier['additional_price']);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Get child tier price
+                        if ($children >= 1) {
+                            $child_tiers = get_field('child_price_tiers', $product_id);
+                            if ($child_tiers) {
+                                foreach ($child_tiers as $tier) {
+                                    if (isset($tier['number_of_children']) && intval($tier['number_of_children']) == $children) {
+                                        if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
+                                            $additional_child_price = floatval($tier['additional_price']);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    $total_price = $base_price + $additional_adult_price + $additional_child_price + $additional_departure_price;
+                    
+                    // Get booking details
+                    $booking_date = isset($cart_item['bwp_start_date']) ? $cart_item['bwp_start_date'] : '';
+                    $adults = isset($cart_item['bwp_adults']) ? $cart_item['bwp_adults'] : 0;
+                    $children = isset($cart_item['bwp_children']) ? $cart_item['bwp_children'] : 0;
                     ?>
                     <div class="booking-item">
                         <div class="booking-image">
@@ -34,16 +102,25 @@ function bwp_your_booking_shortcode() {
                         <div class="booking-details">
                             <h3><?php echo $product->get_name(); ?></h3>
                             <div class="booking-meta">
-                                <?php
-                                // Display custom booking meta
-                                $booking_date = isset($cart_item['booking_date']) ? $cart_item['booking_date'] : '';
-                                if ($booking_date) {
-                                    echo '<span class="date">' . esc_html($booking_date) . '</span>';
-                                }
-                                ?>
+                                <?php if ($booking_date): ?>
+                                    <div class="date"><i class="fas fa-calendar"></i> <?php echo esc_html($booking_date); ?></div>
+                                <?php endif; ?>
+                                
+                                <div class="guests">
+                                    <div class="adults">
+                                        <i class="fas fa-user"></i> <?php echo $adults; ?> Adults
+                                    </div>
+                                    <?php if ($children > 0): ?>
+                                    <div class="children">
+                                        <i class="fas fa-child"></i> <?php echo $children; ?> Children
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                             <div class="booking-price">
-                                <?php echo WC()->cart->get_product_price($product); ?>
+                                <div class="total-price">
+                                    <?php echo wc_price($total_price); ?>
+                                </div>
                             </div>
                         </div>
                         <div class="remove-item">
@@ -182,7 +259,61 @@ function bwp_order_summary_shortcode() {
                         </div>
                     </div>
                     <div class="item-price">
-                        <?php echo WC()->cart->get_product_price($product); ?>
+                        <div class="price-breakdown">
+                            <?php
+                            $base_price = floatval($product->get_price('edit'));
+                            $adults = isset($cart_item['bwp_adults']) ? intval($cart_item['bwp_adults']) : 1;
+                            $children = isset($cart_item['bwp_children']) ? intval($cart_item['bwp_children']) : 0;
+                            $departure_location = isset($cart_item['bwp_departure_location']) ? $cart_item['bwp_departure_location'] : '';
+                            
+                            // Get adult tier price
+                            $additional_adult_cost = 0;
+                            if ($adults >= 2) {
+                                $adult_tiers = get_field('adult_price_tiers', $product->get_id());
+                                if ($adult_tiers) {
+                                    foreach ($adult_tiers as $tier) {
+                                        if (isset($tier['number_of_adults']) && intval($tier['number_of_adults']) == $adults) {
+                                            if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
+                                                $additional_adult_cost = floatval($tier['additional_price']);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Get child tier price
+                            $additional_child_cost = 0;
+                            if ($children >= 1) {
+                                $child_tiers = get_field('child_price_tiers', $product->get_id());
+                                if ($child_tiers) {
+                                    foreach ($child_tiers as $tier) {
+                                        if (isset($tier['number_of_children']) && intval($tier['number_of_children']) == $children) {
+                                            if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
+                                                $additional_child_cost = floatval($tier['additional_price']);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Get departure location price
+                            $departure_cost = 0;
+                            $departure_prices = get_field('departure_prices', $product->get_id());
+                            if ($departure_location && is_array($departure_prices)) {
+                                foreach ($departure_prices as $price) {
+                                    if ($price['location'] === $departure_location) {
+                                        $departure_cost = floatval($price['price']);
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // Display only total price
+                            ?>
+                            <div class="total-price"><?php echo wc_price($base_price + $additional_adult_cost + $additional_child_cost + $departure_cost); ?></div>
+                        </div>
                     </div>
                 </div>
                 <?php
@@ -191,9 +322,65 @@ function bwp_order_summary_shortcode() {
         ?>
 
         <div class="order-totals">
+            <?php
+            $cart_total = 0;
+            foreach ($cart->get_cart() as $cart_item) {
+                $product = $cart_item['data'];
+                $base_price = floatval($product->get_price('edit'));
+                $adults = isset($cart_item['bwp_adults']) ? intval($cart_item['bwp_adults']) : 1;
+                $children = isset($cart_item['bwp_children']) ? intval($cart_item['bwp_children']) : 0;
+                $departure_location = isset($cart_item['bwp_departure_location']) ? $cart_item['bwp_departure_location'] : '';
+                
+                // Get adult tier price
+                $additional_adult_cost = 0;
+                if ($adults >= 2) {
+                    $adult_tiers = get_field('adult_price_tiers', $product->get_id());
+                    if ($adult_tiers) {
+                        foreach ($adult_tiers as $tier) {
+                            if (isset($tier['number_of_adults']) && intval($tier['number_of_adults']) == $adults) {
+                                if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
+                                    $additional_adult_cost = floatval($tier['additional_price']);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Get child tier price
+                $additional_child_cost = 0;
+                if ($children >= 1) {
+                    $child_tiers = get_field('child_price_tiers', $product->get_id());
+                    if ($child_tiers) {
+                        foreach ($child_tiers as $tier) {
+                            if (isset($tier['number_of_children']) && intval($tier['number_of_children']) == $children) {
+                                if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
+                                    $additional_child_cost = floatval($tier['additional_price']);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Get departure location price
+                $departure_cost = 0;
+                $departure_prices = get_field('departure_prices', $product->get_id());
+                if ($departure_location && is_array($departure_prices)) {
+                    foreach ($departure_prices as $price) {
+                        if ($price['location'] === $departure_location) {
+                            $departure_cost = floatval($price['price']);
+                            break;
+                        }
+                    }
+                }
+                
+                $cart_total += $base_price + $additional_adult_cost + $additional_child_cost + $departure_cost;
+            }
+            ?>
             <div class="subtotal">
                 <span>Subtotal</span>
-                <span class="amount"><?php echo WC()->cart->get_cart_subtotal(); ?></span>
+                <span class="amount"><?php echo wc_price($cart_total); ?></span>
             </div>
             <?php if (WC()->cart->get_discount_total()) : ?>
             <div class="discount">
@@ -203,7 +390,7 @@ function bwp_order_summary_shortcode() {
             <?php endif; ?>
             <div class="total">
                 <span>Total</span>
-                <span class="amount"><?php echo WC()->cart->get_total(); ?></span>
+                <span class="amount"><?php echo wc_price($cart_total - WC()->cart->get_discount_total()); ?></span>
             </div>
         </div>
 

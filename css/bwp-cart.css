@@ -141,6 +141,43 @@
     margin-bottom: 8px;
 }
 
+.booking-price {
+    font-size: 1.1em;
+    color: #333;
+}
+
+.price-breakdown {
+    margin-bottom: 10px;
+}
+
+.price-breakdown .base-price {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.price-breakdown .additional-price {
+    color: #666;
+    font-size: 0.9em;
+    margin-left: 15px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.price-breakdown .additional-price::before {
+    content: '+';
+    color: #999;
+}
+
+.total-price {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #2c5282;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
 .total {
     font-size: 18px;
     font-weight: bold;
