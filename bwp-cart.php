@@ -268,7 +268,7 @@ function bwp_customer_information_shortcode() {
                 <textarea id="special_requests" name="special_requests"></textarea>
             </div>
 
-            <?php wp_nonce_field('bwp_customer_info_nonce', 'bwp_nonce'); ?>
+            <?php wp_nonce_field('bwp_save_customer_info', 'bwp_nonce'); ?>
             <button type="submit" class="submit-button">Continue to Payment</button>
         </form>
     </div>
@@ -439,7 +439,10 @@ add_action('wp_enqueue_scripts', 'bwp_cart_enqueue_styles');
 // AJAX handler for saving customer information
 function bwp_save_customer_info() {
     // Verify nonce for security
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'bwp_customer_info_nonce')) {
+    if (!isset($_POST['bwp_nonce']) || !wp_verify_nonce($_POST['bwp_nonce'], 'bwp_save_customer_info')) {
+        error_log('BWP Debug - Nonce verification failed:');
+        error_log('Received nonce: ' . (isset($_POST['bwp_nonce']) ? $_POST['bwp_nonce'] : 'not set'));
+        error_log('Action: ' . $_POST['action']);
         wp_send_json_error('Invalid security token');
         return;
     }
@@ -502,7 +505,7 @@ function bwp_save_customer_info() {
     
     wp_send_json_success(array(
         'message' => 'Customer information saved successfully',
-        'redirect' => $next_step_url
+        'redirect_url' => $next_step_url
     ));
 }
 add_action('wp_ajax_bwp_save_customer_info', 'bwp_save_customer_info');

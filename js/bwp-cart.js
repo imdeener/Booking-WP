@@ -123,39 +123,38 @@ jQuery(document).ready(function($) {
     $('.bwp-customer-form').on('submit', function(e) {
         e.preventDefault();
         
-        var $form = $(this);
-        var $submitBtn = $form.find('button[type="submit"]');
+        const form = $(this);
+        const submitBtn = form.find('button[type="submit"]');
+        submitBtn.prop('disabled', true);
         
-        // Disable submit button
-        $submitBtn.prop('disabled', true);
+        const formData = new FormData(form[0]);
+        formData.append('action', 'bwp_save_customer_info');
+        
+        // Debug info
+        console.log('Form submission:', {
+            action: 'bwp_save_customer_info',
+            nonce: formData.get('bwp_nonce')
+        });
         
         $.ajax({
             url: bwp_ajax.ajax_url,
             type: 'POST',
-            data: {
-                action: 'bwp_save_customer_info',
-                nonce: bwp_ajax.nonce,
-                first_name: $('#first_name').val(),
-                last_name: $('#last_name').val(),
-                thai_id: $('#thai_id').val(),
-                email: $('#email').val(),
-                phone: $('#phone').val(),
-                hotel_name: $('#hotel_name').val(),
-                room: $('#room').val(),
-                special_requests: $('#special_requests').val()
-            },
+            processData: false,
+            contentType: false,
+            data: formData,
             success: function(response) {
                 if (response.success) {
                     // Redirect to next step
-                    window.location.href = response.data.redirect;
+                    window.location.href = response.data.redirect_url;
                 } else {
-                    alert('Error: ' + response.data);
-                    $submitBtn.prop('disabled', false);
+                    submitBtn.prop('disabled', false);
+                    alert(response.data || 'An error occurred. Please try again.');
                 }
             },
             error: function(xhr, status, error) {
-                alert('Error saving customer information. Please try again.');
-                $submitBtn.prop('disabled', false);
+                submitBtn.prop('disabled', false);
+                alert('An error occurred. Please try again.');
+                console.error('AJAX Error:', error);
             }
         });
     });
