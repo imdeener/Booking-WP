@@ -325,17 +325,19 @@ function bwp_order_summary_shortcode() {
                                 <div class="date"><i class="fas fa-calendar"></i> <?php echo esc_html($cart_item['bwp_start_date']); ?></div>
                             <?php endif; ?>
                             
-                            <div class="guests">
+                            <div class="guests" data-item-key="<?php echo esc_attr($cart_item_key); ?>">
                                 <div class="guest-type adults">
                                     <i class="fas fa-user"></i>
                                     <span class="guest-count" data-item-key="<?php echo esc_attr($cart_item_key); ?>" data-type="adults"><?php echo isset($cart_item['bwp_adults']) ? $cart_item['bwp_adults'] : 0; ?></span>
                                     <span class="guest-label">Adults</span>
                                 </div>
+                                <?php if (isset($cart_item['bwp_children']) && intval($cart_item['bwp_children']) > 0): ?>
                                 <div class="guest-type children">
                                     <i class="fas fa-child"></i>
-                                    <span class="guest-count" data-item-key="<?php echo esc_attr($cart_item_key); ?>" data-type="children"><?php echo isset($cart_item['bwp_children']) ? $cart_item['bwp_children'] : 0; ?></span>
+                                    <span class="guest-count" data-item-key="<?php echo esc_attr($cart_item_key); ?>" data-type="children"><?php echo $cart_item['bwp_children']; ?></span>
                                     <span class="guest-label">Children</span>
                                 </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

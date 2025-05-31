@@ -91,9 +91,35 @@ jQuery(document).ready(function($) {
                     button.siblings('.quantity').text(response.data.new_value);
                     
                     // Update quantity in Order Summary
-                    const summaryGuestCount = $(`.guest-count[data-item-key="${itemKey}"][data-type="${type}"]`);
-                    if (summaryGuestCount.length) {
-                        summaryGuestCount.text(response.data.new_value);
+                    if (type === 'children') {
+                        const guestTypeChildren = $(`.guests[data-item-key="${itemKey}"] .guest-type.children`);
+                        const newValue = parseInt(response.data.new_value);
+                        
+                        if (newValue > 0) {
+                            // Show children section if not exists
+                            if (guestTypeChildren.length === 0) {
+                                const guestsContainer = $(`.guests[data-item-key="${itemKey}"]`);
+                                guestsContainer.append(`
+                                    <div class="guest-type children" data-item-key="${itemKey}">
+                                        <i class="fas fa-child"></i>
+                                        <span class="guest-count" data-item-key="${itemKey}" data-type="children">${newValue}</span>
+                                        <span class="guest-label">Children</span>
+                                    </div>
+                                `);
+                            } else {
+                                // Update existing count
+                                guestTypeChildren.find('.guest-count').text(newValue);
+                            }
+                        } else {
+                            // Remove children section if exists
+                            guestTypeChildren.remove();
+                        }
+                    } else {
+                        // Update adults count
+                        const summaryGuestCount = $(`.guest-count[data-item-key="${itemKey}"][data-type="${type}"]`);
+                        if (summaryGuestCount.length) {
+                            summaryGuestCount.text(response.data.new_value);
+                        }
                     }
                     
                     // Update item price
