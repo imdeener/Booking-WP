@@ -254,19 +254,3 @@
     background: #f8f8f8;
     border-radius: 6px;
 }
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .form-row {
-        flex-direction: column;
-    }
-    
-    .booking-item {
-        flex-direction: column;
-    }
-    
-    .booking-image img {
-        width: 100%;
-        height: auto;
-    }
-}
