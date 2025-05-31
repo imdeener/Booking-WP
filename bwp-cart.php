@@ -10,6 +10,16 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Check if WooCommerce is active
+if (!function_exists('WC')) {
+    return;
+}
+
+// Check if ACF is active
+if (!function_exists('get_field')) {
+    return;
+}
+
 // Your Booking Section
 function bwp_your_booking_shortcode() {
     ob_start();
@@ -107,18 +117,54 @@ function bwp_your_booking_shortcode() {
                                 <?php endif; ?>
                                 
                                 <div class="guests">
-                                    <div class="adults">
-                                        <i class="fas fa-user"></i> <?php echo $adults; ?> Adults
+                                    <?php
+                                    // Get adult tiers
+                                    $adult_tiers = get_field('adult_price_tiers', $product_id);
+                                    $max_adults = 1; // Default min is 1
+                                    if ($adult_tiers) {
+                                        foreach ($adult_tiers as $tier) {
+                                            $num_adults = isset($tier['number_of_adults']) ? intval($tier['number_of_adults']) : 0;
+                                            if ($num_adults > $max_adults) {
+                                                $max_adults = $num_adults;
+                                            }
+                                        }
+                                    }
+                                    ?>
+                                    <div class="guest-type adults">
+                                        <i class="fas fa-user"></i>
+                                        <div class="quantity-controls">
+                                            <button type="button" class="quantity-btn minus" data-type="adults" data-item-key="<?php echo esc_attr($cart_item_key); ?>" data-min="1">&minus;</button>
+                                            <span class="quantity"><?php echo $adults; ?></span>
+                                            <button type="button" class="quantity-btn plus" data-type="adults" data-item-key="<?php echo esc_attr($cart_item_key); ?>" data-max="<?php echo esc_attr($max_adults); ?>">&plus;</button>
+                                        </div>
+                                        <span class="guest-label">Adults</span>
                                     </div>
-                                    <?php if ($children > 0): ?>
-                                    <div class="children">
-                                        <i class="fas fa-child"></i> <?php echo $children; ?> Children
+                                    <?php
+                                    // Get child tiers
+                                    $child_tiers = get_field('child_price_tiers', $product_id);
+                                    $max_children = 0; // Default min is 0
+                                    if ($child_tiers) {
+                                        foreach ($child_tiers as $tier) {
+                                            $num_children = isset($tier['number_of_children']) ? intval($tier['number_of_children']) : 0;
+                                            if ($num_children > $max_children) {
+                                                $max_children = $num_children;
+                                            }
+                                        }
+                                    }
+                                    ?>
+                                    <div class="guest-type children">
+                                        <i class="fas fa-child"></i>
+                                        <div class="quantity-controls">
+                                            <button type="button" class="quantity-btn minus" data-type="children" data-item-key="<?php echo esc_attr($cart_item_key); ?>" data-min="0">&minus;</button>
+                                            <span class="quantity"><?php echo $children; ?></span>
+                                            <button type="button" class="quantity-btn plus" data-type="children" data-item-key="<?php echo esc_attr($cart_item_key); ?>" data-max="<?php echo esc_attr($max_children); ?>">&plus;</button>
+                                        </div>
+                                        <span class="guest-label">Children</span>
                                     </div>
-                                    <?php endif; ?>
                                 </div>
                             </div>
                             <div class="booking-price">
-                                <div class="total-price">
+                                <div class="total-price" data-item-key="<?php echo esc_attr($cart_item_key); ?>">
                                     <?php echo wc_price($total_price); ?>
                                 </div>
                             </div>
@@ -407,12 +453,12 @@ add_shortcode('msc_order_totals_summary', 'bwp_order_summary_shortcode');
 // Enqueue necessary styles
 function bwp_cart_enqueue_styles() {
     wp_enqueue_style('bwp-cart-styles', plugins_url('css/bwp-cart.css', __FILE__));
-    wp_enqueue_script('bwp-cart-scripts', plugins_url('js/bwp-cart.js', __FILE__), array('jquery'), '1.0.0', true);
+    wp_enqueue_script('bwp-cart-script', plugins_url('js/bwp-cart.js', __FILE__), array('jquery'), '', true);
     
-    // Localize the script with new data
-    wp_localize_script('bwp-cart-scripts', 'bwp_ajax', array(
+    wp_localize_script('bwp-cart-script', 'bwp_ajax', array(
         'ajax_url' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('bwp_customer_info_nonce')
+        'nonce' => wp_create_nonce('bwp_update_guest_quantity'),
+        'customer_nonce' => wp_create_nonce('bwp_save_customer_info')
     ));
 }
 add_action('wp_enqueue_scripts', 'bwp_cart_enqueue_styles');
@@ -681,3 +727,124 @@ function bwp_save_customer_meta_fields($user_id) {
 }
 add_action('personal_options_update', 'bwp_save_customer_meta_fields');
 add_action('edit_user_profile_update', 'bwp_save_customer_meta_fields');
+
+// AJAX handler for updating guest quantities
+function bwp_update_guest_quantity() {
+    check_ajax_referer('bwp_update_guest_quantity', 'nonce');
+    
+    if (!isset($_POST['item_key']) || !isset($_POST['type']) || !isset($_POST['action_type'])) {
+        wp_send_json_error('Missing required parameters');
+        return;
+    }
+    
+    $cart_item_key = sanitize_text_field($_POST['item_key']);
+    $type = sanitize_text_field($_POST['type']);
+    $action = sanitize_text_field($_POST['action_type']);
+    
+    if (!in_array($type, ['adults', 'children'])) {
+        wp_send_json_error('Invalid guest type');
+        return;
+    }
+    
+    if (!in_array($action, ['increase', 'decrease'])) {
+        wp_send_json_error('Invalid action type');
+        return;
+    }
+    
+    $cart = WC()->cart;
+    if (!$cart || !isset($cart->cart_contents[$cart_item_key])) {
+        wp_send_json_error('Invalid cart item');
+        return;
+    }
+    
+    $cart_item = $cart->cart_contents[$cart_item_key];
+    $current_value = isset($cart_item['bwp_' . $type]) ? intval($cart_item['bwp_' . $type]) : ($type === 'adults' ? 1 : 0);
+    
+    // Calculate new value
+    if ($action === 'increase') {
+        $new_value = $current_value + 1;
+    } else {
+        $new_value = max($current_value - 1, ($type === 'adults' ? 1 : 0));
+    }
+    
+    // Update cart item meta
+    $cart->cart_contents[$cart_item_key]['bwp_' . $type] = $new_value;
+    $cart->set_session();
+    
+    // Calculate new total price
+    $cart_item = WC()->cart->get_cart_item($cart_item_key);
+    $product = wc_get_product($cart_item['product_id']);
+    $base_price = floatval($product->get_price());
+    
+    // Get current adults and children counts from cart item
+    $adults = isset($cart_item['bwp_adults']) ? intval($cart_item['bwp_adults']) : 1;
+    $children = isset($cart_item['bwp_children']) ? intval($cart_item['bwp_children']) : 0;
+    
+    // Update the count based on which type was changed
+    if ($type === 'adults') {
+        $adults = $new_value;
+    } else {
+        $children = $new_value;
+    }
+    
+    // Initialize costs
+    $total_price = $base_price;
+    $additional_adult_cost = 0;
+    $additional_child_cost = 0;
+    $additional_departure_cost = 0;
+    
+    // Get tiered prices
+    $adult_tiers = get_field('adult_price_tiers', $product->get_id());
+    $child_tiers = get_field('child_price_tiers', $product->get_id());
+    
+    // Calculate additional price for adults based on tiers
+    if ($adults >= 2 && $adult_tiers) {
+        foreach ($adult_tiers as $tier) {
+            if (isset($tier['number_of_adults']) && $adults == intval($tier['number_of_adults'])) {
+                if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
+                    $additional_adult_cost = floatval($tier['additional_price']);
+                    break;
+                }
+            }
+        }
+    }
+
+    // Calculate additional price for children based on tiers
+    if ($children >= 1 && $child_tiers) {
+        foreach ($child_tiers as $tier) {
+            if (isset($tier['number_of_children']) && $children == intval($tier['number_of_children'])) {
+                if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
+                    $additional_child_cost = floatval($tier['additional_price']);
+                    break;
+                }
+            }
+        }
+    }
+
+    // Get departure location price
+    $departure_location = isset($cart_item['bwp_departure_location']) ? $cart_item['bwp_departure_location'] : '';
+    if ($departure_location) {
+        if ($departure_location === 'phuket') {
+            $additional_departure_cost = floatval(get_field('phuket_price', $product->get_id()));
+        } elseif ($departure_location === 'khaolak') {
+            $additional_departure_cost = floatval(get_field('khaolak_price', $product->get_id()));
+        }
+    }
+    
+    // Add all additional costs to total
+    $total_price += $additional_adult_cost + $additional_child_cost + $additional_departure_cost;
+    
+    // Update cart item meta
+    $cart->cart_contents[$cart_item_key]['bwp_adults'] = $adults;
+    $cart->cart_contents[$cart_item_key]['bwp_children'] = $children;
+    $cart->cart_contents[$cart_item_key]['total_price'] = $total_price;
+    $cart->set_session();
+    
+    wp_send_json_success(array(
+        'new_value' => $new_value,
+        'total_price' => wc_price($total_price)
+    ));
+}
+
+add_action('wp_ajax_bwp_update_guest_quantity', 'bwp_update_guest_quantity');
+add_action('wp_ajax_nopriv_bwp_update_guest_quantity', 'bwp_update_guest_quantity');
