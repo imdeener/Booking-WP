@@ -51,8 +51,48 @@ jQuery(document).ready(function($) {
                     // Update quantity display
                     button.siblings('.quantity').text(response.data.new_value);
                     
-                    // Update only this item's price
-                    $('.total-price[data-item-key="' + itemKey + '"]').html(response.data.total_price);
+                    // Update item price
+                    const itemPriceElement = $('.total-price[data-item-key="' + itemKey + '"]');
+                    if (itemPriceElement.length) {
+                        itemPriceElement.html(response.data.total_price);
+                        console.log('Updated price element:', {
+                            itemKey: itemKey,
+                            newPrice: response.data.total_price
+                        });
+                    } else {
+                        console.error('Price element not found for item key:', itemKey);
+                    }
+                    
+                    // Update order summary
+                    if (response.data.cart_totals) {
+                        // Update order totals
+                        $('.order-totals .subtotal-amount').html(response.data.cart_totals.subtotal);
+                        
+                        // Update discount if present
+                        const discountRow = $('.order-totals .discount');
+                        if (response.data.cart_totals.discount) {
+                            if (discountRow.length === 0) {
+                                // Add discount row if it doesn't exist
+                                $('.order-totals .subtotal').after(
+                                    '<div class="discount">'
+                                    + '<span class="label">Discount</span>'
+                                    + '<span class="discount-amount">-' + response.data.cart_totals.discount + '</span>'
+                                    + '</div>'
+                                );
+                            } else {
+                                discountRow.find('.discount-amount').html('-' + response.data.cart_totals.discount);
+                            }
+                            discountRow.show();
+                        } else {
+                            discountRow.hide();
+                        }
+                        
+                        // Update total
+                        $('.order-totals .total-amount').html(response.data.cart_totals.total);
+                        
+                        // Log for debugging
+                        console.log('Updated cart totals:', response.data.cart_totals);
+                    }
                     
                     // Refresh the page if needed
                     if (response.data.refresh) {

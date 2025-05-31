@@ -307,10 +307,14 @@ function bwp_order_summary_shortcode() {
                     <div class="item-price">
                         <div class="price-breakdown">
                             <?php
+                            // Get base price and quantities
                             $base_price = floatval($product->get_price('edit'));
                             $adults = isset($cart_item['bwp_adults']) ? intval($cart_item['bwp_adults']) : 1;
                             $children = isset($cart_item['bwp_children']) ? intval($cart_item['bwp_children']) : 0;
                             $departure_location = isset($cart_item['bwp_departure_location']) ? $cart_item['bwp_departure_location'] : '';
+                            
+                            // Initialize total price
+                            $total_price = $base_price;
                             
                             // Get adult tier price
                             $additional_adult_cost = 0;
@@ -356,9 +360,16 @@ function bwp_order_summary_shortcode() {
                                 }
                             }
                             
-                            // Display only total price
+                            // Calculate total price for this item
+                            $total_price += $additional_adult_cost + $additional_child_cost + $departure_cost;
+                            
+                            // Update cart item data
+                            $cart->cart_contents[$cart_item_key]['line_total'] = $total_price;
+                            $cart->cart_contents[$cart_item_key]['line_subtotal'] = $total_price;
+                            $cart->cart_contents[$cart_item_key]['total_price'] = $total_price;
+                            $cart->cart_contents[$cart_item_key]['data']->set_price($total_price);
                             ?>
-                            <div class="total-price"><?php echo wc_price($base_price + $additional_adult_cost + $additional_child_cost + $departure_cost); ?></div>
+                            <div class="total-price" data-item-key="<?php echo esc_attr($cart_item_key); ?>"><?php echo wc_price($total_price); ?></div>
                         </div>
                     </div>
                 </div>
@@ -367,76 +378,38 @@ function bwp_order_summary_shortcode() {
         }
         ?>
 
+        <?php
+        // Save cart data
+        $cart->set_session();
+        
+        // Calculate cart totals
+        $cart->calculate_totals();
+        
+        // Calculate totals from cart items
+        $subtotal = 0;
+        $total = 0;
+        foreach ($cart->get_cart() as $item) {
+            $subtotal += $item['line_subtotal'];
+            $total += $item['line_total'];
+        }
+        
+        // Get discount
+        $discount = $cart->get_discount_total();
+        ?>
         <div class="order-totals">
-            <?php
-            $cart_total = 0;
-            foreach ($cart->get_cart() as $cart_item) {
-                $product = $cart_item['data'];
-                $base_price = floatval($product->get_price('edit'));
-                $adults = isset($cart_item['bwp_adults']) ? intval($cart_item['bwp_adults']) : 1;
-                $children = isset($cart_item['bwp_children']) ? intval($cart_item['bwp_children']) : 0;
-                $departure_location = isset($cart_item['bwp_departure_location']) ? $cart_item['bwp_departure_location'] : '';
-                
-                // Get adult tier price
-                $additional_adult_cost = 0;
-                if ($adults >= 2) {
-                    $adult_tiers = get_field('adult_price_tiers', $product->get_id());
-                    if ($adult_tiers) {
-                        foreach ($adult_tiers as $tier) {
-                            if (isset($tier['number_of_adults']) && intval($tier['number_of_adults']) == $adults) {
-                                if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
-                                    $additional_adult_cost = floatval($tier['additional_price']);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // Get child tier price
-                $additional_child_cost = 0;
-                if ($children >= 1) {
-                    $child_tiers = get_field('child_price_tiers', $product->get_id());
-                    if ($child_tiers) {
-                        foreach ($child_tiers as $tier) {
-                            if (isset($tier['number_of_children']) && intval($tier['number_of_children']) == $children) {
-                                if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
-                                    $additional_child_cost = floatval($tier['additional_price']);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // Get departure location price
-                $departure_cost = 0;
-                $departure_prices = get_field('departure_prices', $product->get_id());
-                if ($departure_location && is_array($departure_prices)) {
-                    foreach ($departure_prices as $price) {
-                        if ($price['location'] === $departure_location) {
-                            $departure_cost = floatval($price['price']);
-                            break;
-                        }
-                    }
-                }
-                
-                $cart_total += $base_price + $additional_adult_cost + $additional_child_cost + $departure_cost;
-            }
-            ?>
             <div class="subtotal">
-                <span>Subtotal</span>
-                <span class="amount"><?php echo wc_price($cart_total); ?></span>
+                <span class="label">Subtotal</span>
+                <span class="subtotal-amount"><?php echo wc_price($subtotal); ?></span>
             </div>
-            <?php if (WC()->cart->get_discount_total()) : ?>
+            <?php if ($discount > 0) : ?>
             <div class="discount">
-                <span>Discount</span>
-                <span class="amount">-<?php echo wc_price(WC()->cart->get_discount_total()); ?></span>
+                <span class="label">Discount</span>
+                <span class="discount-amount">-<?php echo wc_price($discount); ?></span>
             </div>
             <?php endif; ?>
             <div class="total">
-                <span>Total</span>
-                <span class="amount"><?php echo wc_price($cart_total - WC()->cart->get_discount_total()); ?></span>
+                <span class="label">Total</span>
+                <span class="total-amount"><?php echo wc_price($total); ?></span>
             </div>
         </div>
 
@@ -834,15 +807,50 @@ function bwp_update_guest_quantity() {
     // Add all additional costs to total
     $total_price += $additional_adult_cost + $additional_child_cost + $additional_departure_cost;
     
-    // Update cart item meta
+    // Update cart item meta and line total
     $cart->cart_contents[$cart_item_key]['bwp_adults'] = $adults;
     $cart->cart_contents[$cart_item_key]['bwp_children'] = $children;
     $cart->cart_contents[$cart_item_key]['total_price'] = $total_price;
+    $cart->cart_contents[$cart_item_key]['line_total'] = $total_price;
+    $cart->cart_contents[$cart_item_key]['line_subtotal'] = $total_price;
+    $cart->cart_contents[$cart_item_key]['data']->set_price($total_price);
+    
+    // Save cart data
     $cart->set_session();
     
+    // Calculate cart totals
+    $cart->calculate_totals();
+    
+    // Get order summary data
+    $subtotal = 0;
+    $total = 0;
+    
+    // Calculate totals from cart items
+    foreach ($cart->get_cart() as $item) {
+        $subtotal += $item['line_subtotal'];
+        $total += $item['line_total'];
+    }
+    
+    $cart_totals = array(
+        'subtotal' => $subtotal,
+        'total' => $total
+    );
+
+    // Get discount if any
+    $discount_total = WC()->cart->get_discount_total();
+    $cart_totals_response = array(
+        'subtotal' => wc_price($cart_totals['subtotal']),
+        'total' => wc_price($cart_totals['total'])
+    );
+
+    if ($discount_total > 0) {
+        $cart_totals_response['discount'] = wc_price($discount_total);
+    }
+
     wp_send_json_success(array(
         'new_value' => $new_value,
-        'total_price' => wc_price($total_price)
+        'total_price' => wc_price($total_price),
+        'cart_totals' => $cart_totals_response
     ));
 }
 
