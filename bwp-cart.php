@@ -442,9 +442,10 @@ function bwp_order_summary_shortcode() {
         
         // Calculate final total
         $total = $subtotal - $discount;
+        $has_coupon = !empty(WC()->cart->get_applied_coupons());
         ?>
         <div class="coupon-form">
-            <div class="coupon-input-group">
+            <div class="coupon-input-group" <?php echo $has_coupon ? 'style="display: none;"' : ''; ?>>
                 <input type="text" id="coupon_code" class="input-text" placeholder="Enter coupon code" />
                 <button type="button" class="apply-coupon-btn">Apply</button>
             </div>
