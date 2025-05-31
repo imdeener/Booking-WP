@@ -458,7 +458,19 @@ function bwp_order_summary_shortcode() {
             </div>
             <?php if ($discount > 0) : ?>
             <div class="discount">
-                <span class="label">Discount</span>
+                <div class="label-group">
+                    <span class="label">Discount</span>
+                    <?php 
+                    $coupons = WC()->cart->get_applied_coupons();
+                    if (!empty($coupons)) :
+                        $coupon_code = $coupons[0];
+                    ?>
+                    <div class="coupon-badge">
+                        <?php echo esc_html($coupon_code); ?>
+                        <button type="button" class="remove-coupon" data-coupon="<?php echo esc_attr($coupon_code); ?>">&times;</button>
+                    </div>
+                    <?php endif; ?>
+                </div>
                 <span class="discount-amount">-<?php echo wc_price($discount); ?></span>
             </div>
             <?php endif; ?>
@@ -984,3 +996,36 @@ function bwp_apply_coupon() {
 
 add_action('wp_ajax_bwp_apply_coupon', 'bwp_apply_coupon');
 add_action('wp_ajax_nopriv_bwp_apply_coupon', 'bwp_apply_coupon');
+
+function bwp_remove_coupon() {
+    check_ajax_referer('bwp_nonce', 'nonce');
+    $coupon_code = sanitize_text_field($_POST['coupon_code']);
+
+    if (empty($coupon_code)) {
+        wp_send_json_error(array('message' => 'Invalid coupon code'));
+    }
+
+    $cart = WC()->cart;
+    $cart->remove_coupon($coupon_code);
+
+    // Calculate totals
+    $subtotal = 0;
+    foreach ($cart->get_cart() as $item) {
+        $subtotal += $item['line_subtotal'];
+    }
+    
+    // After removing coupon, total is same as subtotal
+    $total = $subtotal;
+    
+    // Update cart totals
+    $cart->calculate_totals();
+
+    wp_send_json_success(array(
+        'message' => 'Coupon removed successfully!',
+        'total' => $total,
+        'total_formatted' => wc_price($total)
+    ));
+}
+
+add_action('wp_ajax_bwp_remove_coupon', 'bwp_remove_coupon');
+add_action('wp_ajax_nopriv_bwp_remove_coupon', 'bwp_remove_coupon');

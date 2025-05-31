@@ -232,7 +232,13 @@ jQuery(document).ready(function($) {
                         if (discountRow.length === 0) {
                             $('.order-totals .subtotal').after(
                                 '<div class="discount">' +
+                                '<div class="label-group">' +
                                 '<span class="label">Discount</span>' +
+                                '<div class="coupon-badge">' +
+                                couponCode +
+                                '<button type="button" class="remove-coupon" data-coupon="' + couponCode + '">&times;</button>' +
+                                '</div>' +
+                                '</div>' +
                                 '<span class="discount-amount">-' + response.data.discount_formatted + '</span>' +
                                 '</div>'
                             );
@@ -240,6 +246,7 @@ jQuery(document).ready(function($) {
                             discountRow.find('.discount-amount').html('-' + response.data.discount_formatted);
                         }
                         discountRow.show();
+                        $('#coupon_code').val('').parent().hide();
                     } else {
                         discountRow.hide();
                     }
@@ -253,6 +260,48 @@ jQuery(document).ready(function($) {
             error: function(xhr, status, error) {
                 messageContainer.removeClass('success').addClass('error').text('Error applying coupon. Please try again.');
                 console.error('Coupon AJAX error:', {status, error, response: xhr.responseText});
+            },
+            complete: function() {
+                button.prop('disabled', false);
+            }
+        });
+    });
+
+    // Handle remove coupon
+    $(document).on('click', '.remove-coupon', function() {
+        const button = $(this);
+        const couponCode = button.data('coupon');
+        const messageContainer = $('.coupon-message');
+
+        // Disable button during request
+        button.prop('disabled', true);
+        messageContainer.removeClass('success error').text('Removing coupon...');
+
+        $.ajax({
+            url: bwp_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'bwp_remove_coupon',
+                nonce: bwp_ajax.coupon_nonce,
+                coupon_code: couponCode
+            },
+            success: function(response) {
+                if (response.success) {
+                    messageContainer.removeClass('error').addClass('success').text(response.data.message);
+
+                    // Hide discount row and show coupon input
+                    $('.order-totals .discount').hide();
+                    $('#coupon_code').val('').parent().show();
+
+                    // Update total
+                    $('.order-totals .total-amount').html(response.data.total_formatted);
+                } else {
+                    messageContainer.removeClass('success').addClass('error').text(response.data.message || 'Error removing coupon');
+                }
+            },
+            error: function(xhr, status, error) {
+                messageContainer.removeClass('success').addClass('error').text('Error removing coupon. Please try again.');
+                console.error('Remove coupon AJAX error:', {status, error, response: xhr.responseText});
             },
             complete: function() {
                 button.prop('disabled', false);
