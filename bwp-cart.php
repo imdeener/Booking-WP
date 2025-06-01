@@ -558,25 +558,15 @@ function bwp_save_customer_info() {
     update_user_meta($user_id, 'billing_email', $customer_data['email']);
     update_user_meta($user_id, 'billing_phone', $customer_data['phone']);
     
-    // Save additional fields as billing meta
+    // Save additional fields as both user meta and billing meta
     update_user_meta($user_id, 'billing_thai_id', $customer_data['thai_id']);
     update_user_meta($user_id, 'billing_hotel_name', $customer_data['hotel_name']);
     update_user_meta($user_id, 'billing_room', $customer_data['room']);
-    update_user_meta($user_id, 'billing_special_requests', $customer_data['special_requests']);
     
-    // Also save as order meta for compatibility
-    if (WC()->session) {
-        $cart = WC()->cart;
-        if ($cart && !$cart->is_empty()) {
-            foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
-                $cart->cart_contents[$cart_item_key]['billing_thai_id'] = $customer_data['thai_id'];
-                $cart->cart_contents[$cart_item_key]['billing_hotel_name'] = $customer_data['hotel_name'];
-                $cart->cart_contents[$cart_item_key]['billing_room'] = $customer_data['room'];
-                $cart->cart_contents[$cart_item_key]['billing_special_requests'] = $customer_data['special_requests'];
-            }
-            $cart->set_session();
-        }
-    }
+    // Also save as custom fields for compatibility
+    update_user_meta($user_id, 'thai_id', $customer_data['thai_id']);
+    update_user_meta($user_id, 'hotel_name', $customer_data['hotel_name']);
+    update_user_meta($user_id, 'room_number', $customer_data['room']);
 
 
     // Store data in WooCommerce session for order creation
@@ -646,15 +636,6 @@ function bwp_add_billing_fields($fields) {
             'class' => array('form-row-wide'),
             'clear' => true,
             'priority' => 36
-        ),
-        'billing_special_requests' => array(
-            'type' => 'textarea',
-            'label' => 'Special Requests',
-            'required' => false,
-            'class' => array('form-row-wide'),
-            'clear' => true,
-            'priority' => 37,
-            'placeholder' => 'Any special requests or notes for your booking?'
         )
     );
     
@@ -664,20 +645,16 @@ add_filter('woocommerce_billing_fields', 'bwp_add_billing_fields');
 
 // Add custom admin order data
 function bwp_admin_billing_fields($fields) {
-    $fields['billing_thai_id'] = array(
+    $fields['thai_id'] = array(
         'label' => 'Thai ID/Passport Number',
         'show' => true
     );
-    $fields['billing_hotel_name'] = array(
+    $fields['hotel_name'] = array(
         'label' => 'Hotel Name',
         'show' => true
     );
-    $fields['billing_room'] = array(
+    $fields['room'] = array(
         'label' => 'Room Number',
-        'show' => true
-    );
-    $fields['billing_special_requests'] = array(
-        'label' => 'Special Requests',
         'show' => true
     );
     return $fields;
@@ -693,37 +670,10 @@ function bwp_add_order_columns($columns) {
         if ($key === 'billing_address') {
             $new_columns['billing_thai_id'] = 'Thai ID/Passport';
             $new_columns['billing_hotel'] = 'Hotel & Room';
-            $new_columns['billing_special_requests'] = 'Special Requests';
         }
     }
     
     return $new_columns;
-}
-add_filter('manage_edit-shop_order_columns', 'bwp_add_order_columns', 20);
-
-// Populate custom column data
-function bwp_populate_order_columns($column, $order_id) {
-    $order = wc_get_order($order_id);
-    
-    switch ($column) {
-        case 'billing_thai_id':
-            echo esc_html($order->get_meta('_billing_thai_id'));
-            break;
-            
-        case 'billing_hotel':
-            $hotel = $order->get_meta('_billing_hotel_name');
-            $room = $order->get_meta('_billing_room');
-            if ($hotel && $room) {
-                echo esc_html($hotel) . ' - Room ' . esc_html($room);
-            } elseif ($hotel) {
-                echo esc_html($hotel);
-            }
-            break;
-            
-        case 'billing_special_requests':
-            echo esc_html($order->get_meta('_billing_special_requests'));
-            break;
-    }
 }
 add_filter('manage_edit-shop_order_columns', 'bwp_add_order_columns', 20);
 
@@ -1072,7 +1022,7 @@ function bwp_remove_coupon() {
     $total = $subtotal;
     
     // Update cart totals
-    $cart->calculate_totals();
+    $cart->calculate_totals(); 
 
     wp_send_json_success(array(
         'message' => 'Coupon removed successfully!',
