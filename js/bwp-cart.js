@@ -142,16 +142,17 @@ jQuery(document).ready(function($) {
                         }
                     }
                     
-                    // Update item price
-                    const itemPriceElement = $('.total-price[data-item-key="' + itemKey + '"] .price');
-                    if (itemPriceElement.length) {
-                        itemPriceElement.html(response.data.total_price);
-                        console.log('Updated price element:', {
+                    // Update item price in Your Booking and Order Summary sections
+                    const itemPriceElements = $('.total-price[data-item-key="' + itemKey + '"] .price, .summary-item .item-price .total-price[data-item-key="' + itemKey + '"]');
+                    if (itemPriceElements.length) {
+                        itemPriceElements.html(response.data.total_price);
+                        console.log('Updated price elements:', {
                             itemKey: itemKey,
-                            newPrice: response.data.total_price
+                            newPrice: response.data.total_price,
+                            elements: itemPriceElements.length
                         });
                     } else {
-                        console.error('Price element not found for item key:', itemKey);
+                        console.error('Price elements not found for item key:', itemKey);
                     }
                     
                     // Update order summary
