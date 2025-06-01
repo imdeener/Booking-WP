@@ -133,7 +133,7 @@ function bwp_your_booking_shortcode() {
                         </div>
                         <div class="booking-details">
                             <div class="product-title">
-                                <h3 class="booking-title"><?php echo get_the_title($product_id); ?></h3>
+                                <h3 class="booking-title"><a href="<?php echo esc_url($product->get_permalink()); ?>"><?php echo get_the_title($product_id); ?></a></h3>
                             </div>
                             <div class="booking-meta">
                                 <?php if ($booking_date): ?>
@@ -322,7 +322,7 @@ function bwp_order_summary_shortcode() {
                         <?php echo $product->get_image('thumbnail'); ?>
                     </div>
                     <div class="item-details">
-                        <h4><?php echo $product->get_name(); ?></h4>
+                        <h4><a href="<?php echo esc_url($product->get_permalink()); ?>"><?php echo $product->get_name(); ?></a></h4>
                         <div class="booking-meta">
                             <?php if (isset($cart_item['bwp_start_date'])): ?>
                                 <div class="date"><i class="fas fa-calendar"></i> <?php echo esc_html($cart_item['bwp_start_date']); ?></div>
