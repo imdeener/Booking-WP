@@ -10,6 +10,31 @@
     margin-bottom: 24px;
 }
 
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.edit-link {
+    font-size: 14px;
+    color: #007bff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.edit-link:hover {
+    text-decoration: underline;
+}
+
+.edit-link:before {
+    content: '✎';
+    font-size: 16px;
+}
+
 .bwp-customer-info-display .section-header h2 {
     font-size: 24px;
     margin: 0;

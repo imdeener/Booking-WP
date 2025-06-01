@@ -28,7 +28,10 @@ function bwp_display_customer_info_shortcode() {
     ?>
     <div class="bwp-customer-info-display">
         <div class="section-header">
-            <h2>Your Information</h2>
+            <div class="header-content">
+                <h2>Your Information</h2>
+                <a href="<?php echo esc_url(wc_get_page_permalink('cart')); ?>" class="edit-link">Edit</a>
+            </div>
         </div>
         <div class="info-grid">
             <div class="info-item">
