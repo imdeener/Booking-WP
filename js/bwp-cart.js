@@ -7,10 +7,30 @@ jQuery(document).ready(function($) {
         const modal = document.getElementById('deleteConfirmationModal');
         const itemDetails = document.getElementById('deleteItemDetails');
         
+        if (!modal || !itemDetails) {
+            console.error('Modal elements not found');
+            return;
+        }
+
         // Get item details
-        const title = item.closest('.booking-item').querySelector('.booking-title').textContent;
-        const price = item.closest('.booking-item').querySelector('.total-price .price').textContent;
-        const image = item.closest('.booking-item').querySelector('.booking-img').src;
+        const bookingItem = item.closest('.booking-item');
+        if (!bookingItem) {
+            console.error('Booking item not found');
+            return;
+        }
+
+        const titleEl = bookingItem.querySelector('.product-title h3');
+        const priceEl = bookingItem.querySelector('.booking-price .total-price .price');
+        const imageEl = bookingItem.querySelector('.booking-image .booking-img');
+
+        if (!titleEl || !priceEl || !imageEl) {
+            console.error('Required elements not found');
+            return;
+        }
+
+        const title = titleEl.textContent;
+        const price = priceEl.textContent;
+        const image = imageEl.src;
         
         // Update modal content
         itemDetails.innerHTML = `
@@ -123,7 +143,7 @@ jQuery(document).ready(function($) {
                     }
                     
                     // Update item price
-                    const itemPriceElement = $('.total-price[data-item-key="' + itemKey + '"]');
+                    const itemPriceElement = $('.total-price[data-item-key="' + itemKey + '"] .price');
                     if (itemPriceElement.length) {
                         itemPriceElement.html(response.data.total_price);
                         console.log('Updated price element:', {
@@ -310,7 +330,7 @@ jQuery(document).ready(function($) {
     });
 
     // Handle remove item clicks
-    $('.remove-item a').click(function(e) {
+    $(document).on('click', '.remove-item a', function(e) {
         e.preventDefault();
         showDeleteModal(this);
     });
