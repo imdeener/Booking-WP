@@ -74,17 +74,35 @@ function bwp_payment_methods_shortcode() {
             
             if (!empty($available_gateways)) {
                 ?>
-                <div id="payment" class="woocommerce-checkout-payment">
-                    <ul class="wc_payment_methods payment_methods methods">
-                        <?php
-                        foreach ($available_gateways as $gateway) {
-                            wc_get_template('checkout/payment-method.php', array(
-                                'gateway' => $gateway
-                            ));
-                        }
-                        ?>
-                    </ul>
-                </div>
+                <form id="payment-form" class="checkout woocommerce-checkout">
+                    <?php wp_nonce_field('woocommerce-process_checkout', 'woocommerce-process-checkout-nonce'); ?>
+                    <div id="payment" class="woocommerce-checkout-payment">
+                        <ul class="wc_payment_methods payment_methods methods">
+                            <?php
+                            foreach ($available_gateways as $gateway) {
+                                ?>
+                                <li class="wc_payment_method payment_method_<?php echo esc_attr($gateway->id); ?>">
+                                    <input id="payment_method_<?php echo esc_attr($gateway->id); ?>"
+                                           type="radio"
+                                           class="input-radio"
+                                           name="payment_method"
+                                           value="<?php echo esc_attr($gateway->id); ?>"
+                                           <?php checked($gateway->chosen, true); ?> />
+                                    <label for="payment_method_<?php echo esc_attr($gateway->id); ?>">
+                                        <?php echo $gateway->get_title(); ?>
+                                    </label>
+                                    <?php if ($gateway->has_fields() || $gateway->get_description()) : ?>
+                                        <div class="payment_box payment_method_<?php echo esc_attr($gateway->id); ?>">
+                                            <?php $gateway->payment_fields(); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </li>
+                                <?php
+                            }
+                            ?>
+                        </ul>
+                    </div>
+                </form>
                 <?php
             }
         }
@@ -98,7 +116,30 @@ add_shortcode('msc_payment_methods', 'bwp_payment_methods_shortcode');
 /**
  * Enqueue styles for checkout
  */
-function bwp_checkout_enqueue_styles() {
+function bwp_checkout_enqueue_scripts() {
+    // Enqueue WooCommerce styles and scripts
+    wp_enqueue_style('woocommerce-general');
+    wp_enqueue_style('woocommerce-layout');
+    wp_enqueue_script('wc-checkout');
+    wp_enqueue_script('wc-cart-fragments');
+    wp_enqueue_script('wc-add-to-cart');
+    wp_enqueue_script('jquery-blockui');
+    
+    // Enqueue our custom styles
     wp_enqueue_style('bwp-checkout-styles', plugins_url('css/bwp-checkout.css', __FILE__));
+    
+    // Localize script for AJAX
+    wp_localize_script('wc-checkout', 'wc_checkout_params', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'wc_ajax_url' => WC_AJAX::get_endpoint('%%endpoint%%'),
+        'update_order_review_nonce' => wp_create_nonce('update-order-review'),
+        'apply_coupon_nonce' => wp_create_nonce('apply-coupon'),
+        'remove_coupon_nonce' => wp_create_nonce('remove-coupon'),
+        'option_guest_checkout' => get_option('woocommerce_enable_guest_checkout'),
+        'checkout_url' => WC_AJAX::get_endpoint('checkout'),
+        'is_checkout' => is_checkout() ? 1 : 0,
+        'debug_mode' => defined('WP_DEBUG') && WP_DEBUG,
+        'i18n_checkout_error' => esc_attr__('Error processing checkout. Please try again.', 'woocommerce'),
+    ));
 }
-add_action('wp_enqueue_scripts', 'bwp_checkout_enqueue_styles');
+add_action('wp_enqueue_scripts', 'bwp_checkout_enqueue_scripts');
