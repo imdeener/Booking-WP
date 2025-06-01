@@ -636,6 +636,14 @@ function bwp_add_billing_fields($fields) {
             'class' => array('form-row-wide'),
             'clear' => true,
             'priority' => 36
+        ),
+        'billing_special_requests' => array(
+            'type' => 'textarea',
+            'label' => 'Special Requests',
+            'required' => false,
+            'class' => array('form-row-wide'),
+            'clear' => true,
+            'priority' => 37
         )
     );
     
@@ -655,6 +663,10 @@ function bwp_admin_billing_fields($fields) {
     );
     $fields['room'] = array(
         'label' => 'Room Number',
+        'show' => true
+    );
+    $fields['special_requests'] = array(
+        'label' => 'Special Requests',
         'show' => true
     );
     return $fields;
