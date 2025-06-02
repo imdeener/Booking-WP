@@ -69,6 +69,9 @@ function bwp_payment_methods_shortcode() {
         </div>
         <?php 
         if (WC()->cart && !WC()->cart->is_empty()) {
+            // Get customer data from session
+            $customer_data = WC()->session->get('bwp_customer_data');
+            
             // Get list of available payment gateways
             $available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
             
@@ -76,6 +79,26 @@ function bwp_payment_methods_shortcode() {
                 ?>
                 <form id="payment-form" class="checkout woocommerce-checkout">
                     <?php wp_nonce_field('woocommerce-process_checkout', 'woocommerce-process-checkout-nonce'); ?>
+                    
+                    <?php if ($customer_data) : ?>
+                        <!-- Hidden fields for customer data -->
+                        <input type="hidden" name="billing_first_name" value="<?php echo esc_attr($customer_data['first_name']); ?>">
+                        <input type="hidden" name="billing_last_name" value="<?php echo esc_attr($customer_data['last_name']); ?>">
+                        <input type="hidden" name="billing_email" value="<?php echo esc_attr($customer_data['email']); ?>">
+                        <input type="hidden" name="billing_phone" value="<?php echo esc_attr($customer_data['phone']); ?>">
+                        <input type="hidden" name="billing_thai_id" value="<?php echo esc_attr($customer_data['thai_id']); ?>">
+                        <input type="hidden" name="billing_hotel_name" value="<?php echo esc_attr($customer_data['hotel_name']); ?>">
+                        <input type="hidden" name="billing_room" value="<?php echo esc_attr($customer_data['room']); ?>">
+                        <input type="hidden" name="billing_special_requests" value="<?php echo esc_attr($customer_data['special_requests']); ?>">
+                        
+                        <!-- Default values for required WooCommerce fields -->
+                        <input type="hidden" name="billing_country" value="TH">
+                        <input type="hidden" name="billing_address_1" value="-">
+                        <input type="hidden" name="billing_city" value="-">
+                        <input type="hidden" name="billing_state" value="Bangkok">
+                        <input type="hidden" name="billing_postcode" value="10110">
+                    <?php endif; ?>
+                    
                     <div id="payment" class="woocommerce-checkout-payment">
                         <ul class="wc_payment_methods payment_methods methods">
                             <?php
