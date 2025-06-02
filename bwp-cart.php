@@ -238,9 +238,6 @@ function bwp_customer_information_shortcode() {
     $billing_thai_id = get_user_meta($user_id, 'billing_thai_id', true);
     $billing_email = get_user_meta($user_id, 'billing_email', true);
     $billing_phone = get_user_meta($user_id, 'billing_phone', true);
-    $billing_hotel_name = get_user_meta($user_id, 'billing_hotel_name', true);
-    $billing_room = get_user_meta($user_id, 'billing_room', true);
-    $billing_special_requests = get_user_meta($user_id, 'billing_special_requests', true);
     ?>
     <div class="bwp-customer-information">
     <div class="section-header"><h2>Your Information</h2></div>
@@ -282,17 +279,17 @@ function bwp_customer_information_shortcode() {
             <div class="form-row">
                 <div class="form-group">
                     <label for="hotel_name">Hotel Name *</label>
-                    <input type="text" id="hotel_name" name="hotel_name" value="<?php echo esc_attr($billing_hotel_name); ?>" required>
+                    <input type="text" id="hotel_name" name="hotel_name" required>
                 </div>
                 <div class="form-group">
                     <label for="room">Room *</label>
-                    <input type="text" id="room" name="room" value="<?php echo esc_attr($billing_room); ?>" required>
+                    <input type="text" id="room" name="room" required>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="special_requests">Special Requests</label>
-                <textarea id="special_requests" name="special_requests"><?php echo esc_textarea($billing_special_requests); ?></textarea>
+                <textarea id="special_requests" name="special_requests"></textarea>
             </div>
 
             <?php wp_nonce_field('bwp_save_customer_info', 'bwp_nonce'); ?>
@@ -571,10 +568,37 @@ function bwp_save_customer_info() {
     update_user_meta($user_id, 'thai_id', $customer_data['thai_id']);
     update_user_meta($user_id, 'hotel_name', $customer_data['hotel_name']);
     update_user_meta($user_id, 'room_number', $customer_data['room']);
+    update_user_meta($user_id, 'special_requests', $customer_data['special_requests']);
 
+    // Add required WooCommerce billing fields
+    $customer_data['billing_country'] = 'TH';
+    $customer_data['billing_address_1'] = '-';
+    $customer_data['billing_city'] = '-';
+    $customer_data['billing_state'] = 'Bangkok';
+    $customer_data['billing_postcode'] = '10110';
 
     // Store data in WooCommerce session for order creation
     WC()->session->set('bwp_customer_data', $customer_data);
+
+    // Store billing data in WooCommerce customer session
+    WC()->customer->set_billing_first_name($customer_data['first_name']);
+    WC()->customer->set_billing_last_name($customer_data['last_name']);
+    WC()->customer->set_billing_email($customer_data['email']);
+    WC()->customer->set_billing_phone($customer_data['phone']);
+    WC()->customer->set_billing_country('TH');
+    WC()->customer->set_billing_state('Bangkok');
+    WC()->customer->set_billing_postcode('10110');
+    WC()->customer->set_billing_city('-');
+    WC()->customer->set_billing_address_1('-');
+
+    // Save custom fields to customer meta data
+    WC()->customer->update_meta_data('billing_thai_id', $customer_data['thai_id']);
+    WC()->customer->update_meta_data('billing_hotel_name', $customer_data['hotel_name']);
+    WC()->customer->update_meta_data('billing_room', $customer_data['room']);
+    WC()->customer->update_meta_data('billing_special_requests', $customer_data['special_requests']);
+
+    // Save changes to customer session
+    WC()->customer->save();
 
     // Redirect to WooCommerce checkout page
     $next_step_url = wc_get_checkout_url();
