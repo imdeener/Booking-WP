@@ -530,47 +530,25 @@ function bwp_save_customer_info() {
         'special_requests' => sanitize_textarea_field($_POST['special_requests'])
     );
 
-    // Get current user or create a new customer
+    // Get current user ID if logged in
     $user_id = get_current_user_id();
-    if (!$user_id) {
-        // Create new customer if email doesn't exist
-        $user_email = $customer_data['email'];
-        if (!email_exists($user_email)) {
-            $user_id = wc_create_new_customer(
-                $user_email,
-                $user_email, // username same as email
-                wp_generate_password() // random password
-            );
-        } else {
-            $user = get_user_by('email', $user_email);
-            $user_id = $user->ID;
-        }
+
+    // If user is logged in, update their meta data
+    if ($user_id) {
+        // Update WooCommerce billing details
+        update_user_meta($user_id, 'billing_first_name', $customer_data['first_name']);
+        update_user_meta($user_id, 'billing_last_name', $customer_data['last_name']);
+        update_user_meta($user_id, 'billing_email', $customer_data['email']);
+        update_user_meta($user_id, 'billing_phone', $customer_data['phone']);
+        
+        // Save additional fields
+        update_user_meta($user_id, 'billing_thai_id', $customer_data['thai_id']);
+        update_user_meta($user_id, 'billing_hotel_name', $customer_data['hotel_name']);
+        update_user_meta($user_id, 'billing_room', $customer_data['room']);
+        update_user_meta($user_id, 'billing_special_requests', $customer_data['special_requests']);
     }
 
-    if (is_wp_error($user_id)) {
-        wp_send_json_error('Could not create/update customer');
-        return;
-    }
-
-    // Update WooCommerce billing details
-    update_user_meta($user_id, 'billing_first_name', $customer_data['first_name']);
-    update_user_meta($user_id, 'billing_last_name', $customer_data['last_name']);
-    update_user_meta($user_id, 'billing_email', $customer_data['email']);
-    update_user_meta($user_id, 'billing_phone', $customer_data['phone']);
-    
-    // Save additional fields as both user meta and billing meta
-    update_user_meta($user_id, 'billing_thai_id', $customer_data['thai_id']);
-    update_user_meta($user_id, 'billing_hotel_name', $customer_data['hotel_name']);
-    update_user_meta($user_id, 'billing_room', $customer_data['room']);
-    update_user_meta($user_id, 'billing_special_requests', $customer_data['special_requests']);
-    
-    // Also save as custom fields for compatibility
-    update_user_meta($user_id, 'thai_id', $customer_data['thai_id']);
-    update_user_meta($user_id, 'hotel_name', $customer_data['hotel_name']);
-    update_user_meta($user_id, 'room_number', $customer_data['room']);
-    update_user_meta($user_id, 'special_requests', $customer_data['special_requests']);
-
-    // Add required WooCommerce billing fields
+    // Add required WooCommerce billing fields to customer data
     $customer_data['billing_country'] = 'TH';
     $customer_data['billing_address_1'] = '-';
     $customer_data['billing_city'] = '-';
@@ -580,24 +558,36 @@ function bwp_save_customer_info() {
     // Store data in WooCommerce session for order creation
     WC()->session->set('bwp_customer_data', $customer_data);
 
-    // Store billing data in WooCommerce customer session
-    WC()->customer->set_billing_first_name($customer_data['first_name']);
-    WC()->customer->set_billing_last_name($customer_data['last_name']);
-    WC()->customer->set_billing_email($customer_data['email']);
-    WC()->customer->set_billing_phone($customer_data['phone']);
-    WC()->customer->set_billing_country('TH');
-    WC()->customer->set_billing_state('Bangkok');
-    WC()->customer->set_billing_postcode('10110');
-    WC()->customer->set_billing_city('-');
-    WC()->customer->set_billing_address_1('-');
+    // Get WooCommerce customer object
+    $customer = WC()->customer;
+    if ($customer) {
+        // Set billing fields
+        $customer->set_billing_first_name($customer_data['first_name']);
+        $customer->set_billing_last_name($customer_data['last_name']);
+        $customer->set_billing_email($customer_data['email']);
+        $customer->set_billing_phone($customer_data['phone']);
+        $customer->set_billing_country($customer_data['billing_country']);
+        $customer->set_billing_address_1($customer_data['billing_address_1']);
+        $customer->set_billing_city($customer_data['billing_city']);
+        $customer->set_billing_state($customer_data['billing_state']);
+        $customer->set_billing_postcode($customer_data['billing_postcode']);
 
-    // Save custom fields to customer meta data
-    WC()->customer->update_meta_data('billing_thai_id', $customer_data['thai_id']);
-    WC()->customer->update_meta_data('billing_hotel_name', $customer_data['hotel_name']);
-    WC()->customer->update_meta_data('billing_room', $customer_data['room']);
-    WC()->customer->update_meta_data('billing_special_requests', $customer_data['special_requests']);
+        // Set custom fields directly in customer session
+        WC()->session->set('billing_thai_id', $customer_data['thai_id']);
+        WC()->session->set('billing_hotel_name', $customer_data['hotel_name']);
+        WC()->session->set('billing_room', $customer_data['room']);
+        WC()->session->set('billing_special_requests', $customer_data['special_requests']);
+        $customer->set_billing_postcode($customer_data['billing_postcode']);
 
-    // Save changes to customer session
+        // Set additional fields
+        $customer->add_meta_data('billing_thai_id', $customer_data['thai_id'], true);
+        $customer->add_meta_data('billing_hotel_name', $customer_data['hotel_name'], true);
+        $customer->add_meta_data('billing_room', $customer_data['room'], true);
+        $customer->add_meta_data('billing_special_requests', $customer_data['special_requests'], true);
+
+        // Save all changes
+        $customer->save();
+    }
     WC()->customer->save();
 
     // Redirect to WooCommerce checkout page
@@ -640,6 +630,9 @@ add_action('woocommerce_checkout_update_order_meta', 'bwp_add_customer_data_to_o
 
 // Add custom billing fields
 function bwp_add_billing_fields($fields) {
+    // Get customer data from session
+    $customer_data = WC()->session ? WC()->session->get('bwp_customer_data') : null;
+    
     $custom_fields = array(
         'billing_thai_id' => array(
             'type' => 'text',
@@ -647,7 +640,8 @@ function bwp_add_billing_fields($fields) {
             'required' => true,
             'class' => array('form-row-wide'),
             'clear' => true,
-            'priority' => 25
+            'priority' => 25,
+            'default' => $customer_data ? $customer_data['thai_id'] : ''
         ),
         'billing_hotel_name' => array(
             'type' => 'text',
@@ -655,7 +649,8 @@ function bwp_add_billing_fields($fields) {
             'required' => true,
             'class' => array('form-row-wide'),
             'clear' => true,
-            'priority' => 35
+            'priority' => 35,
+            'default' => $customer_data ? $customer_data['hotel_name'] : ''
         ),
         'billing_room' => array(
             'type' => 'text',
@@ -663,7 +658,8 @@ function bwp_add_billing_fields($fields) {
             'required' => true,
             'class' => array('form-row-wide'),
             'clear' => true,
-            'priority' => 36
+            'priority' => 36,
+            'default' => $customer_data ? $customer_data['room'] : ''
         ),
         'billing_special_requests' => array(
             'type' => 'textarea',
@@ -671,7 +667,8 @@ function bwp_add_billing_fields($fields) {
             'required' => false,
             'class' => array('form-row-wide'),
             'clear' => true,
-            'priority' => 37
+            'priority' => 37,
+            'default' => $customer_data ? $customer_data['special_requests'] : ''
         )
     );
     

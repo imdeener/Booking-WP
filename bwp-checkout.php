@@ -166,3 +166,69 @@ function bwp_checkout_enqueue_scripts() {
     ));
 }
 add_action('wp_enqueue_scripts', 'bwp_checkout_enqueue_scripts');
+
+/**
+ * Prefill checkout fields from session data
+ */
+function bwp_prefill_checkout_fields($fields) {
+    // Get customer data from session
+    if (WC()->session) {
+        $customer_data = WC()->session->get('bwp_customer_data');
+        
+        // Debug session data
+        error_log('BWP Debug - Session Data:');
+        error_log(print_r($customer_data, true));
+        
+        // Also try to get individual fields from session
+        $thai_id = WC()->session->get('billing_thai_id');
+        $hotel_name = WC()->session->get('billing_hotel_name');
+        $room = WC()->session->get('billing_room');
+        $special_requests = WC()->session->get('billing_special_requests');
+        
+        error_log('BWP Debug - Individual Fields:');
+        error_log('Thai ID: ' . $thai_id);
+        error_log('Hotel: ' . $hotel_name);
+        error_log('Room: ' . $room);
+        error_log('Special Requests: ' . $special_requests);
+        
+        if ($customer_data) {
+            // Prefill standard billing fields
+            if (!empty($customer_data['first_name'])) {
+                $fields['billing']['billing_first_name']['default'] = $customer_data['first_name'];
+            }
+            if (!empty($customer_data['last_name'])) {
+                $fields['billing']['billing_last_name']['default'] = $customer_data['last_name'];
+            }
+            if (!empty($customer_data['email'])) {
+                $fields['billing']['billing_email']['default'] = $customer_data['email'];
+            }
+            if (!empty($customer_data['phone'])) {
+                $fields['billing']['billing_phone']['default'] = $customer_data['phone'];
+            }
+            
+            // Prefill custom fields
+            if (!empty($customer_data['thai_id'])) {
+                $fields['billing']['billing_thai_id']['default'] = $customer_data['thai_id'];
+            }
+            if (!empty($customer_data['hotel_name'])) {
+                $fields['billing']['billing_hotel_name']['default'] = $customer_data['hotel_name'];
+            }
+            if (!empty($customer_data['room'])) {
+                $fields['billing']['billing_room']['default'] = $customer_data['room'];
+            }
+            if (!empty($customer_data['special_requests'])) {
+                $fields['billing']['billing_special_requests']['default'] = $customer_data['special_requests'];
+            }
+            
+            // Set required default fields
+            $fields['billing']['billing_country']['default'] = 'TH';
+            $fields['billing']['billing_address_1']['default'] = '-';
+            $fields['billing']['billing_city']['default'] = '-';
+            $fields['billing']['billing_state']['default'] = 'Bangkok';
+            $fields['billing']['billing_postcode']['default'] = '10110';
+        }
+    }
+    
+    return $fields;
+}
+add_filter('woocommerce_checkout_fields', 'bwp_prefill_checkout_fields');
