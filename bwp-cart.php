@@ -228,16 +228,39 @@ function bwp_customer_information_shortcode() {
     ob_start();
     ?>
     <?php
-    // Get current user data
-    $current_user = wp_get_current_user();
-    $user_id = $current_user->ID;
+    // Try to get data from session first
+    $customer_data = WC()->session ? WC()->session->get('bwp_customer_data') : null;
     
-    // Get saved billing data
-    $billing_first_name = get_user_meta($user_id, 'billing_first_name', true);
-    $billing_last_name = get_user_meta($user_id, 'billing_last_name', true);
-    $billing_thai_id = get_user_meta($user_id, 'billing_thai_id', true);
-    $billing_email = get_user_meta($user_id, 'billing_email', true);
-    $billing_phone = get_user_meta($user_id, 'billing_phone', true);
+    if ($customer_data) {
+        $billing_first_name = $customer_data['first_name'];
+        $billing_last_name = $customer_data['last_name'];
+        $billing_email = $customer_data['email'];
+        $billing_phone = $customer_data['phone'];
+        $billing_thai_id = $customer_data['thai_id'];
+        $billing_hotel_name = $customer_data['hotel_name'];
+        $billing_room = $customer_data['room'];
+        $billing_special_requests = $customer_data['special_requests'];
+    } else {
+        // Fallback to user meta if session data not available
+        $current_user = wp_get_current_user();
+        $user_id = $current_user->ID;
+        
+        $billing_first_name = get_user_meta($user_id, 'billing_first_name', true);
+        $billing_last_name = get_user_meta($user_id, 'billing_last_name', true);
+        $billing_thai_id = get_user_meta($user_id, 'billing_thai_id', true);
+        $billing_email = get_user_meta($user_id, 'billing_email', true);
+        $billing_phone = get_user_meta($user_id, 'billing_phone', true);
+        $billing_hotel_name = get_user_meta($user_id, 'billing_hotel_name', true);
+        $billing_room = get_user_meta($user_id, 'billing_room', true);
+        $billing_special_requests = get_user_meta($user_id, 'billing_special_requests', true);
+    }
+    
+    // Debug
+    error_log('BWP Debug - Customer Info Form:');
+    error_log('Session Data: ' . print_r($customer_data, true));
+    error_log('First Name: ' . $billing_first_name);
+    error_log('Last Name: ' . $billing_last_name);
+    error_log('Thai ID: ' . $billing_thai_id);
     ?>
     <div class="bwp-customer-information">
     <div class="section-header"><h2>Your Information</h2></div>

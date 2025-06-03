@@ -14,17 +14,32 @@ if (!defined('ABSPATH')) {
  */
 function bwp_display_customer_info_shortcode() {
     ob_start();
-
-    // Get current user data
-    $current_user = wp_get_current_user();
-    $user_id = $current_user->ID;
     
-    // Get saved billing data
-    $billing_first_name = get_user_meta($user_id, 'billing_first_name', true);
-    $billing_last_name = get_user_meta($user_id, 'billing_last_name', true);
-    $billing_thai_id = get_user_meta($user_id, 'billing_thai_id', true);
-    $billing_email = get_user_meta($user_id, 'billing_email', true);
-    $billing_phone = get_user_meta($user_id, 'billing_phone', true);
+    // Try to get data from session first
+    $customer_data = WC()->session ? WC()->session->get('bwp_customer_data') : null;
+    
+    if ($customer_data) {
+        $billing_first_name = $customer_data['first_name'];
+        $billing_last_name = $customer_data['last_name'];
+        $billing_email = $customer_data['email'];
+        $billing_phone = $customer_data['phone'];
+        $billing_thai_id = $customer_data['thai_id'];
+    } else {
+        // Fallback to customer object if session data not available
+        $billing_first_name = WC()->customer ? WC()->customer->get_billing_first_name() : '';
+        $billing_last_name = WC()->customer ? WC()->customer->get_billing_last_name() : '';
+        $billing_email = WC()->customer ? WC()->customer->get_billing_email() : '';
+        $billing_phone = WC()->customer ? WC()->customer->get_billing_phone() : '';
+        $billing_thai_id = WC()->customer ? WC()->customer->get_meta('billing_thai_id') : '';
+    }
+    
+    // Debug
+    error_log('BWP Debug - Customer Info Display:');
+    error_log('Session Data: ' . print_r($customer_data, true));
+    error_log('First Name: ' . $billing_first_name);
+    error_log('Last Name: ' . $billing_last_name);
+    error_log('Thai ID: ' . $billing_thai_id);
+    
     ?>
     <div class="bwp-customer-info-display">
         <div class="section-header">
