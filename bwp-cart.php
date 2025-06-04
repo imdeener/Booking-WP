@@ -939,14 +939,16 @@ function bwp_update_guest_quantity() {
         }
     }
     
-    // Add all additional costs to total
+    // Store base price for reference
+    $cart->cart_contents[$cart_item_key]['base_price'] = $base_price;
+
+    // Calculate total price for this item
     $total_price += $additional_adult_cost + $additional_child_cost + $additional_departure_cost;
-    
-    // Update cart item meta and line total
-    $cart->cart_contents[$cart_item_key]['bwp_adults'] = $adults;
-    $cart->cart_contents[$cart_item_key]['bwp_children'] = $children;
-    $cart->cart_contents[$cart_item_key]['total_price'] = $total_price;
+
+    // Update cart item data
+    $cart->cart_contents[$cart_item_key]['line_total'] = $total_price;
     $cart->cart_contents[$cart_item_key]['line_subtotal'] = $total_price;
+    $cart->cart_contents[$cart_item_key]['total_price'] = $total_price;
     $cart->cart_contents[$cart_item_key]['line_total'] = $total_price; // เก็บราคาเต็มไว้ใน line_total ด้วย เพราะจะคำนวณส่วนลดรวมทีเดียวตอนแสดงผล
     $cart->cart_contents[$cart_item_key]['data']->set_price($total_price);
     
@@ -1070,24 +1072,46 @@ function bwp_remove_coupon() {
     }
 
     $cart = WC()->cart;
+
+    // Remove the coupon first
     $cart->remove_coupon($coupon_code);
 
-    // Calculate totals
+    // Calculate totals after removing coupon
     $subtotal = 0;
-    foreach ($cart->get_cart() as $item) {
-        $subtotal += $item['line_subtotal'];
+    foreach ($cart->get_cart() as $cart_item_key => $item) {
+        // Use base_price and recalculate total with additional costs
+        $base_price = isset($item['base_price']) ? $item['base_price'] : $item['line_subtotal'];
+        $adult_price = isset($item['adult_price']) ? $item['adult_price'] * $item['adult_quantity'] : 0;
+        $child_price = isset($item['child_price']) ? $item['child_price'] * $item['child_quantity'] : 0;
+        $departure_price = isset($item['departure_price']) ? $item['departure_price'] : 0;
+        
+        $total_price = $base_price + $adult_price + $child_price + $departure_price;
+        
+        // Update cart item with recalculated price
+        $cart->cart_contents[$cart_item_key]['line_total'] = $total_price;
+        $cart->cart_contents[$cart_item_key]['line_subtotal'] = $total_price;
+        $cart->cart_contents[$cart_item_key]['total_price'] = $total_price;
+        $cart->cart_contents[$cart_item_key]['data']->set_price($total_price);
     }
     
-    // After removing coupon, total is same as subtotal
-    $total = $subtotal;
-    
-    // Update cart totals
-    $cart->calculate_totals(); 
+    // Save cart data
+    $cart->set_session();
+
+    // Calculate totals using WooCommerce
+    $cart->calculate_totals();
+
+    // Get updated totals after calculation
+    $subtotal = 0;
+    $total = 0;
+    foreach ($cart->get_cart() as $item) {
+        $subtotal += $item['line_subtotal'];
+        $total += $item['line_total'];
+    }
 
     wp_send_json_success(array(
         'message' => 'Coupon removed successfully!',
-        'total' => $total,
-        'total_formatted' => wc_price($total)
+        'subtotal' => wc_price($subtotal),
+        'total' => wc_price($total)
     ));
 }
 

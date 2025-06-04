@@ -314,8 +314,9 @@ jQuery(document).ready(function($) {
                     $('.order-totals .discount').hide();
                     $('#coupon_code').val('').parent().show();
 
-                    // Update total
-                    $('.order-totals .total-amount').html(response.data.total_formatted);
+                    // Update subtotal and total
+                    $('.order-totals .subtotal-amount').html(response.data.subtotal);
+                    $('.order-totals .total-amount').html(response.data.total);
                 } else {
                     messageContainer.removeClass('success').addClass('error').text(response.data.message || 'Error removing coupon');
                 }

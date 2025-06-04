@@ -72,84 +72,7 @@ function bwp_display_customer_info_shortcode() {
 }
 add_shortcode('msc_display_customer_info', 'bwp_display_customer_info_shortcode');
 
-/**
- * Display WooCommerce payment methods
- */
-function bwp_payment_methods_shortcode() {
-    ob_start();
-    ?>
-    <div class="bwp-payment-methods">
-        <div class="section-header">
-            <h2>Your Payment</h2>
-        </div>
-        <?php 
-        if (WC()->cart && !WC()->cart->is_empty()) {
-            // Get customer data from session
-            $customer_data = WC()->session->get('bwp_customer_data');
-            
-            // Get list of available payment gateways
-            $available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
-            
-            if (!empty($available_gateways)) {
-                ?>
-                <form id="payment-form" class="checkout woocommerce-checkout">
-                    <?php wp_nonce_field('woocommerce-process_checkout', 'woocommerce-process-checkout-nonce'); ?>
-                    
-                    <?php if ($customer_data) : ?>
-                        <!-- Hidden fields for customer data -->
-                        <input type="hidden" name="billing_first_name" value="<?php echo esc_attr($customer_data['first_name']); ?>">
-                        <input type="hidden" name="billing_last_name" value="<?php echo esc_attr($customer_data['last_name']); ?>">
-                        <input type="hidden" name="billing_email" value="<?php echo esc_attr($customer_data['email']); ?>">
-                        <input type="hidden" name="billing_phone" value="<?php echo esc_attr($customer_data['phone']); ?>">
-                        <input type="hidden" name="billing_thai_id" value="<?php echo esc_attr($customer_data['thai_id']); ?>">
-                        <input type="hidden" name="billing_hotel_name" value="<?php echo esc_attr($customer_data['hotel_name']); ?>">
-                        <input type="hidden" name="billing_room" value="<?php echo esc_attr($customer_data['room']); ?>">
-                        <input type="hidden" name="billing_special_requests" value="<?php echo esc_attr($customer_data['special_requests']); ?>">
-                        
-                        <!-- Default values for required WooCommerce fields -->
-                        <input type="hidden" name="billing_country" value="TH">
-                        <input type="hidden" name="billing_address_1" value="-">
-                        <input type="hidden" name="billing_city" value="-">
-                        <input type="hidden" name="billing_state" value="Bangkok">
-                        <input type="hidden" name="billing_postcode" value="10110">
-                    <?php endif; ?>
-                    
-                    <div id="payment" class="woocommerce-checkout-payment">
-                        <ul class="wc_payment_methods payment_methods methods">
-                            <?php
-                            foreach ($available_gateways as $gateway) {
-                                ?>
-                                <li class="wc_payment_method payment_method_<?php echo esc_attr($gateway->id); ?>">
-                                    <input id="payment_method_<?php echo esc_attr($gateway->id); ?>"
-                                           type="radio"
-                                           class="input-radio"
-                                           name="payment_method"
-                                           value="<?php echo esc_attr($gateway->id); ?>"
-                                           <?php checked($gateway->chosen, true); ?> />
-                                    <label for="payment_method_<?php echo esc_attr($gateway->id); ?>">
-                                        <?php echo $gateway->get_title(); ?>
-                                    </label>
-                                    <?php if ($gateway->has_fields() || $gateway->get_description()) : ?>
-                                        <div class="payment_box payment_method_<?php echo esc_attr($gateway->id); ?>">
-                                            <?php $gateway->payment_fields(); ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </li>
-                                <?php
-                            }
-                            ?>
-                        </ul>
-                    </div>
-                </form>
-                <?php
-            }
-        }
-        ?>
-    </div>
-    <?php
-    return ob_get_clean();
-}
-add_shortcode('msc_payment_methods', 'bwp_payment_methods_shortcode');
+
 
 /**
  * Enqueue styles for checkout
@@ -247,3 +170,102 @@ function bwp_prefill_checkout_fields($fields) {
     return $fields;
 }
 add_filter('woocommerce_checkout_fields', 'bwp_prefill_checkout_fields');
+
+/**
+ * Remove everything except payment section and use custom price calculation
+ */
+function bwp_show_only_payment() {
+    // Remove customer information display
+    remove_action('woocommerce_checkout_before_customer_details', 'bwp_display_customer_info_shortcode');
+    
+    // Remove coupon form
+    remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10);
+    
+    // Remove customer details div
+    add_filter('woocommerce_checkout_fields', function($fields) {
+        return [];
+    }, 99);
+    
+    // Remove order review
+    remove_action('woocommerce_checkout_order_review', 'woocommerce_order_review', 10);
+    
+    // Remove additional information
+    remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_login_form', 10);
+    remove_action('woocommerce_checkout_before_order_review_heading', 'woocommerce_checkout_payment', 20);
+    
+    // Keep only payment section
+    add_action('woocommerce_checkout_order_review', 'woocommerce_checkout_payment', 20);
+    
+    // Use custom price calculation from cart
+    add_filter('woocommerce_before_calculate_totals', 'bwp_use_custom_price_calculation', 99);
+}
+add_action('init', 'bwp_show_only_payment');
+
+/**
+ * Use custom price calculation from cart
+ */
+function bwp_use_custom_price_calculation($cart) {
+    if (is_admin() && !defined('DOING_AJAX')) {
+        return;
+    }
+
+    // Prevent recalculation if already done
+    static $has_run = false;
+    if ($has_run) {
+        return;
+    }
+    $has_run = true;
+    
+    foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+        if (isset($cart_item['base_price'])) {
+            // Use the original base price to prevent accumulation
+            $cart_item['data']->set_price($cart_item['base_price']);
+        }
+    }
+}
+
+/**
+ * Save billing details from session to order
+ */
+function bwp_save_billing_details_to_order($order) {
+    // Get customer data from session
+    $customer_data = WC()->session->get('bwp_customer_data');
+    
+    if ($customer_data) {
+        // Map session data to order billing fields
+        $billing_fields = array(
+            'first_name' => isset($customer_data['first_name']) ? $customer_data['first_name'] : '',
+            'last_name' => isset($customer_data['last_name']) ? $customer_data['last_name'] : '',
+            'email' => isset($customer_data['email']) ? $customer_data['email'] : '',
+            'phone' => isset($customer_data['phone']) ? $customer_data['phone'] : '',
+        );
+        
+        // Set billing data
+        foreach ($billing_fields as $key => $value) {
+            $method = 'set_billing_' . $key;
+            $order->$method($value);
+        }
+        
+        // Set custom fields
+        if (isset($customer_data['thai_id'])) {
+            $order->update_meta_data('_billing_thai_id', $customer_data['thai_id']);
+        }
+        
+        // Set hotel information
+        if (isset($customer_data['hotel_name'])) {
+            $order->update_meta_data('_billing_hotel_name', $customer_data['hotel_name']);
+        }
+        if (isset($customer_data['room'])) {
+            $order->update_meta_data('_billing_room', $customer_data['room']);
+        }
+        if (isset($customer_data['special_requests'])) {
+            $order->update_meta_data('_billing_special_requests', $customer_data['special_requests']);
+        }
+        
+        // Save the order
+        $order->save();
+    }
+    
+    return $order;
+}
+add_filter('woocommerce_checkout_create_order', 'bwp_save_billing_details_to_order');
