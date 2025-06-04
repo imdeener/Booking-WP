@@ -270,49 +270,82 @@ function bwp_customer_information_shortcode() {
                 <div class="form-group">
                     <label for="first_name">First Name *</label>
                     <input type="text" id="first_name" name="first_name" 
-                           value="<?php echo esc_attr($billing_first_name); ?>" required>
+                           value="<?php echo esc_attr($billing_first_name); ?>" 
+                           pattern="[A-Za-z ]{2,}" 
+                           title="Please enter at least 2 letters. Numbers and special characters are not allowed."
+                           placeholder="Enter your first name"
+                           required>
                 </div>
                 <div class="form-group">
                     <label for="last_name">Last Name *</label>
                     <input type="text" id="last_name" name="last_name" 
-                           value="<?php echo esc_attr($billing_last_name); ?>" required>
+                           value="<?php echo esc_attr($billing_last_name); ?>" 
+                           pattern="[A-Za-z ]{2,}" 
+                           title="Please enter at least 2 letters. Numbers and special characters are not allowed."
+                           placeholder="Enter your last name"
+                           required>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="thai_id">Thai ID or Passport Number *</label>
                 <input type="text" id="thai_id" name="thai_id" 
-                       value="<?php echo esc_attr($billing_thai_id); ?>" required>
+                       value="<?php echo esc_attr($billing_thai_id); ?>" 
+                       pattern="[0-9A-Za-z]{8,}" 
+                       title="Please enter a valid Thai ID (13 digits) or Passport number (at least 8 characters)"
+                       placeholder="Enter Thai ID or Passport number"
+                       required>
             </div>
             
             <div class="form-row">
             <div class="form-group">
                 <label for="email">Email Address *</label>
                 <input type="email" id="email" name="email" 
-                       value="<?php echo esc_attr($billing_email); ?>" required>
+                       value="<?php echo esc_attr($billing_email); ?>" 
+                       pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" 
+                       title="Please enter a valid email address"
+                       placeholder="Enter your email address"
+                       required>
             </div>
 
             <div class="form-group">
                 <label for="phone">Phone Number *</label>
                 <input type="tel" id="phone" name="phone" 
-                       value="<?php echo esc_attr($billing_phone); ?>" required>
+                       value="<?php echo esc_attr($billing_phone); ?>" 
+                       pattern="[0-9+]{9,}" 
+                       title="Please enter a valid phone number (at least 9 digits, can include + for country code)"
+                       placeholder="Enter your phone number"
+                       required>
             </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label for="hotel_name">Hotel Name *</label>
-                    <input type="text" id="hotel_name" name="hotel_name" required>
+                    <input type="text" id="hotel_name" name="hotel_name" 
+                           value="<?php echo esc_attr($billing_hotel_name); ?>" 
+                           pattern=".{3,}" 
+                           title="Please enter hotel name (at least 3 characters)"
+                           placeholder="Enter hotel name"
+                           required>
                 </div>
                 <div class="form-group">
                     <label for="room">Room *</label>
-                    <input type="text" id="room" name="room" required>
+                    <input type="text" id="room" name="room" 
+                           value="<?php echo esc_attr($billing_room); ?>" 
+                           pattern="[A-Za-z0-9-]{1,}" 
+                           title="Please enter room number/name (letters, numbers and hyphens only)"
+                           placeholder="Enter room number"
+                           required>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="special_requests">Special Requests</label>
-                <textarea id="special_requests" name="special_requests"></textarea>
+                <textarea id="special_requests" name="special_requests" 
+                           maxlength="500"
+                           placeholder="Enter any special requests or requirements"><?php echo esc_textarea($billing_special_requests); ?></textarea>
+                <small class="form-text text-muted">Maximum 500 characters</small>
             </div>
 
             <?php wp_nonce_field('bwp_save_customer_info', 'bwp_nonce'); ?>
