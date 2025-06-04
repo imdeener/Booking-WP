@@ -106,6 +106,39 @@ function bwp_checkout_enqueue_scripts() {
 add_action('wp_enqueue_scripts', 'bwp_checkout_enqueue_scripts');
 
 /**
+ * Check if required customer data exists before checkout
+ */
+function bwp_check_required_customer_data() {
+    if (!WC()->session) return false;
+    
+    $customer_data = WC()->session->get('bwp_customer_data');
+    if (!$customer_data) return false;
+    
+    $required_fields = array('first_name', 'last_name', 'email', 'phone', 'thai_id');
+    
+    foreach ($required_fields as $field) {
+        if (empty($customer_data[$field])) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+/**
+ * Redirect to cart if required data is missing
+ */
+function bwp_check_checkout_requirements() {
+    if (!is_checkout()) return;
+    
+    if (!bwp_check_required_customer_data()) {
+        wp_redirect(wc_get_cart_url());
+        exit;
+    }
+}
+add_action('template_redirect', 'bwp_check_checkout_requirements');
+
+/**
  * Prefill checkout fields from session data
  */
 function bwp_prefill_checkout_fields($fields) {
