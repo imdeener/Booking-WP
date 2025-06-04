@@ -131,6 +131,11 @@ function bwp_check_required_customer_data() {
 function bwp_check_checkout_requirements() {
     if (!is_checkout()) return;
     
+    // Skip check for order-received page
+    if (isset($_GET['key']) && strpos($_SERVER['REQUEST_URI'], 'order-received') !== false) {
+        return;
+    }
+    
     if (!bwp_check_required_customer_data()) {
         wp_redirect(wc_get_cart_url());
         exit;
@@ -231,6 +236,40 @@ function bwp_show_only_payment() {
     
     // Use custom price calculation from cart
     add_filter('woocommerce_before_calculate_totals', 'bwp_use_custom_price_calculation', 99);
+    
+    // Remove notices and headings
+    add_action('template_redirect', function() {
+        if (is_checkout()) {
+            // Only clear notices if not on order-received page
+            if (strpos($_SERVER['REQUEST_URI'], 'order-received') === false) {
+                WC()->session->set('wc_notices', null);
+            }
+            
+            // Remove order review heading
+            add_filter('woocommerce_order_review_heading', '__return_empty_string');
+            
+            // Remove terms and conditions
+            // remove_action('woocommerce_checkout_terms_and_conditions', 'wc_checkout_privacy_policy_text', 20);
+            // remove_action('woocommerce_checkout_terms_and_conditions', 'wc_terms_and_conditions_page_content', 30);
+        }
+    });
+    
+    // Save customer data to order meta
+    add_action('woocommerce_checkout_create_order', function($order) {
+        if (WC()->session && ($customer_data = WC()->session->get('bwp_customer_data'))) {
+            foreach ($customer_data as $key => $value) {
+                $order->update_meta_data('_bwp_' . $key, $value);
+            }
+        }
+    });
+    
+    // Prevent notices from showing
+    add_filter('woocommerce_notice_types', function($notice_types) {
+        if (is_checkout()) {
+            return [];
+        }
+        return $notice_types;
+    });
 }
 add_action('init', 'bwp_show_only_payment');
 
