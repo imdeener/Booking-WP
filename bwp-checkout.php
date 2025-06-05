@@ -197,11 +197,11 @@ function bwp_prefill_checkout_fields($fields) {
             }
             
             // Set required default fields
-            $fields['billing']['billing_country']['default'] = 'TH';
-            $fields['billing']['billing_address_1']['default'] = '-';
-            $fields['billing']['billing_city']['default'] = '-';
-            $fields['billing']['billing_state']['default'] = 'Bangkok';
-            $fields['billing']['billing_postcode']['default'] = '10110';
+            // $fields['billing']['billing_country']['default'] = 'TH';
+            // $fields['billing']['billing_address_1']['default'] = '-';
+            // $fields['billing']['billing_city']['default'] = '-';
+            // $fields['billing']['billing_state']['default'] = 'Bangkok';
+            // $fields['billing']['billing_postcode']['default'] = '10110';
         }
     }
     
@@ -216,8 +216,9 @@ function bwp_show_only_payment() {
     // Remove customer information display
     remove_action('woocommerce_checkout_before_customer_details', 'bwp_display_customer_info_shortcode');
     
-    // Remove coupon form
+    // Remove WooCommerce coupon form but keep coupon functionality
     remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10);
+    add_filter('woocommerce_coupons_enabled', '__return_true');
     
     // Remove customer details div
     add_filter('woocommerce_checkout_fields', function($fields) {
@@ -301,42 +302,140 @@ function bwp_use_custom_price_calculation($cart) {
  */
 function bwp_save_billing_details_to_order($order) {
     // Get customer data from session
-    $customer_data = WC()->session->get('bwp_customer_data');
-    
-    if ($customer_data) {
-        // Map session data to order billing fields
-        $billing_fields = array(
-            'first_name' => isset($customer_data['first_name']) ? $customer_data['first_name'] : '',
-            'last_name' => isset($customer_data['last_name']) ? $customer_data['last_name'] : '',
-            'email' => isset($customer_data['email']) ? $customer_data['email'] : '',
-            'phone' => isset($customer_data['phone']) ? $customer_data['phone'] : '',
-        );
+    if (WC()->session) {
+        $customer_data = WC()->session->get('bwp_customer_data');
         
-        // Set billing data
-        foreach ($billing_fields as $key => $value) {
-            $method = 'set_billing_' . $key;
-            $order->$method($value);
+        if ($customer_data) {
+            // Save standard billing fields
+            $order->set_billing_first_name($customer_data['first_name']);
+            $order->set_billing_last_name($customer_data['last_name']);
+            $order->set_billing_email($customer_data['email']);
+            $order->set_billing_phone($customer_data['phone']);
+            
+            // Save custom fields
+            if (isset($customer_data['thai_id'])) {
+                $order->update_meta_data('_billing_thai_id', $customer_data['thai_id']);
+            }
+            if (isset($customer_data['hotel_name'])) {
+                $order->update_meta_data('_billing_hotel_name', $customer_data['hotel_name']);
+            }
+            if (isset($customer_data['room'])) {
+                $order->update_meta_data('_billing_room', $customer_data['room']);
+            }
+            if (!empty($customer_data['special_requests'])) {
+                $order->update_meta_data('_billing_special_requests', $customer_data['special_requests']);
+            }
+            
+            // Save default billing fields
+            // $order->set_billing_country('TH');
+            // $order->set_billing_address_1('-');
+            // $order->set_billing_city('-');
+            // $order->set_billing_state('Bangkok');
+            // $order->set_billing_postcode('10110');
         }
-        
-        // Set custom fields
-        if (isset($customer_data['thai_id'])) {
-            $order->update_meta_data('_billing_thai_id', $customer_data['thai_id']);
-        }
-        
-        // Set hotel information
-        if (isset($customer_data['hotel_name'])) {
-            $order->update_meta_data('_billing_hotel_name', $customer_data['hotel_name']);
-        }
-        if (isset($customer_data['room'])) {
-            $order->update_meta_data('_billing_room', $customer_data['room']);
-        }
-        if (isset($customer_data['special_requests'])) {
-            $order->update_meta_data('_billing_special_requests', $customer_data['special_requests']);
-        }
-        
-        // Save the order
-        $order->save();
     }
+    
+    // Update order items with correct pricing
+    foreach ($order->get_items() as $item) {
+        $product = $item->get_product();
+        if (!$product) continue;
+        
+        $product_id = $product->get_id();
+        
+        // Get cart item data
+        $cart = WC()->cart;
+        if (!$cart) continue;
+        
+        foreach ($cart->get_cart() as $cart_item) {
+            if ($cart_item['product_id'] == $product_id) {
+                // Get quantities
+                $adults = isset($cart_item['bwp_adults']) ? intval($cart_item['bwp_adults']) : 1;
+                $children = isset($cart_item['bwp_children']) ? intval($cart_item['bwp_children']) : 0;
+                
+                // Get base price
+                $base_price = $product->get_price();
+                
+                // Calculate additional costs
+                $total_price = $base_price;
+                
+                // Add adult costs
+                if ($adults >= 2) {
+                    $adult_tiers = get_field('adult_price_tiers', $product_id);
+                    if ($adult_tiers) {
+                        foreach ($adult_tiers as $tier) {
+                            if (isset($tier['number_of_adults']) && intval($tier['number_of_adults']) == $adults) {
+                                if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
+                                    $total_price += floatval($tier['additional_price']);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Add child costs
+                if ($children >= 1) {
+                    $child_tiers = get_field('child_price_tiers', $product_id);
+                    if ($child_tiers) {
+                        foreach ($child_tiers as $tier) {
+                            if (isset($tier['number_of_children']) && intval($tier['number_of_children']) == $children) {
+                                if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
+                                    $total_price += floatval($tier['additional_price']);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Add departure location costs if any
+                if (isset($cart_item['bwp_departure_location'])) {
+                    $departure_group = get_field('departure', $product_id);
+                    if ($departure_group) {
+                        $location = $cart_item['bwp_departure_location'];
+                        $price_key = $location . '_additional_price';
+                        if (isset($departure_group[$price_key]) && is_numeric($departure_group[$price_key])) {
+                            $total_price += floatval($departure_group[$price_key]);
+                        }
+                    }
+                }
+                
+                // Get any cart item discounts
+                $cart_discount = 0;
+                if (isset($cart_item['line_subtotal']) && isset($cart_item['line_total'])) {
+                    $cart_discount = $cart_item['line_subtotal'] - $cart_item['line_total'];
+                }
+                
+                // Update item totals
+                $item->set_subtotal($total_price); // Original price before discount
+                if ($cart_discount > 0) {
+                    // Apply the same discount percentage to our calculated total
+                    $discount_percentage = $cart_discount / $cart_item['line_subtotal'];
+                    $discount_amount = $total_price * $discount_percentage;
+                    $item->set_total($total_price - $discount_amount); // Price after discount
+                } else {
+                    $item->set_total($total_price);
+                }
+                
+                // Save guest counts as item meta - using non-hidden keys for display
+                $item->add_meta_data('Adults', $adults, true);
+                $item->add_meta_data('Children', $children, true);
+                if (isset($cart_item['bwp_departure_location'])) {
+                    $item->add_meta_data('Departure From', ucfirst($cart_item['bwp_departure_location']), true);
+                }
+                
+                // Save booking date
+                if (isset($cart_item['bwp_booking_date'])) {
+                    $item->add_meta_data('Booking Date', $cart_item['bwp_booking_date'], true);
+                }
+                
+                break; // Found matching item, no need to continue loop
+            }
+        }
+    }
+    
+    // Recalculate order totals
+    $order->calculate_totals();
     
     return $order;
 }

@@ -507,3 +507,40 @@ add_action('woocommerce_checkout_create_order_line_item', 'bwp_add_order_item_me
 // if added correctly using $item->add_meta_data().
 // If specific formatting is needed, additional hooks like 'woocommerce_order_item_meta_start' or
 // 'woocommerce_order_item_get_formatted_meta_data' can be used.
+
+function bwp_filter_woocommerce_add_cart_item_data($cart_item_data, $product_id) {
+    // Get base price from product
+    $product = wc_get_product($product_id);
+    $base_price = $product->get_price();
+    
+    // Get additional costs from ACF fields
+    $additional_adult_cost = get_field('additional_adult_cost', $product_id) ?: 0;
+    $additional_child_cost = get_field('additional_child_cost', $product_id) ?: 0;
+    $departure_cost = get_field('departure_cost', $product_id) ?: 0;
+    
+    // Get quantities from POST data
+    $adults = isset($_POST['adults']) ? intval($_POST['adults']) : 1;
+    $children = isset($_POST['children']) ? intval($_POST['children']) : 0;
+    
+    // Calculate total price
+    $total_price = $base_price;
+    if ($adults > 1) {
+        $total_price += ($adults - 1) * $additional_adult_cost;
+    }
+    if ($children > 0) {
+        $total_price += $children * $additional_child_cost;
+    }
+    $total_price += $departure_cost;
+    
+    // Store price components and total in cart item data
+    $cart_item_data['base_price'] = $base_price;
+    $cart_item_data['additional_adult_cost'] = $additional_adult_cost;
+    $cart_item_data['additional_child_cost'] = $additional_child_cost;
+    $cart_item_data['departure_cost'] = $departure_cost;
+    $cart_item_data['adults'] = $adults;
+    $cart_item_data['children'] = $children;
+    $cart_item_data['total_price'] = $total_price;
+    
+    return $cart_item_data;
+}
+add_filter('woocommerce_add_cart_item_data', 'bwp_filter_woocommerce_add_cart_item_data', 10, 2);
