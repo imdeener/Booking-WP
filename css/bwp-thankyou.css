@@ -1,0 +1,89 @@
+/* Booking Header Styles */
+.bwp-your-bookings {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+.bwp-your-bookings h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+.booking-header {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.booking-info {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.info-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.info-group i {
+    font-size: 20px;
+    color: #4a90e2;
+    margin-top: 3px;
+}
+
+.info-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-text .label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.info-text .value {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-text .value i {
+    font-size: 16px;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.info-text .value i:hover {
+    color: #4a90e2;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .booking-info {
+        gap: 25px;
+    }
+    
+    .info-group {
+        width: 100%;
+    }
+    
+    .bwp-your-bookings {
+        padding: 20px 15px;
+    }
+    
+    .booking-header {
+        padding: 20px;
+    }
+}
