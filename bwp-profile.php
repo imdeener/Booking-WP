@@ -180,7 +180,7 @@ function bwp_customer_profile_shortcode() {
                     <?php if (is_account_page()): ?>
                     <button type="button" class="edit-profile" id="edit-profile-btn">
                         <i class="fas fa-pencil-alt"></i>
-                        <span>Edit Profile</span>
+                        <span>Edit</span>
                     </button>
                     <?php endif; ?>
                 </div>
