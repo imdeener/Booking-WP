@@ -69,6 +69,100 @@
     color: #4a90e2;
 }
 
+/* Price Summary Styles */
+.price-summary {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 25px;
+    margin: 30px 0;
+}
+
+.price-summary h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.paid-by {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.paid-by .label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.paid-by .label i {
+    color: #4a90e2;
+}
+
+.payment-info {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    color: #333;
+    font-size: 15px;
+}
+
+.order-totals {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.order-totals > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-totals .label {
+    color: #666;
+}
+
+.discount {
+    color: #e67e22;
+}
+
+.discount .label-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.coupon-badge {
+    background: #fff3e6;
+    color: #e67e22;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.total {
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.taxes-note {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .booking-info {
@@ -85,5 +179,14 @@
     
     .booking-header {
         padding: 20px;
+    }
+    
+    .price-summary {
+        margin: 20px 0;
+        padding: 20px;
+    }
+    
+    .price-summary h3 {
+        font-size: 20px;
     }
 }

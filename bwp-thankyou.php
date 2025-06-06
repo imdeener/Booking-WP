@@ -167,3 +167,71 @@ function bwp_thankyou_bookings_shortcode() {
     return ob_get_clean();
 }
 add_shortcode('bwp_thankyou_bookings', 'bwp_thankyou_bookings_shortcode');
+
+/**
+ * Display order totals summary in thank you page
+ */
+function bwp_thankyou_totals_shortcode() {
+    ob_start();
+    
+    // Get the order
+    $order_id = absint(get_query_var('order-received'));
+    if (!$order_id) return;
+    
+    $order = wc_get_order($order_id);
+    if (!$order) return;
+    
+    // Get order totals
+    $subtotal = $order->get_subtotal();
+    $discount = $order->get_total_discount();
+    $total = $order->get_total();
+    
+    // Get payment method info
+    $payment_method = $order->get_payment_method();
+    $payment_method_title = $order->get_payment_method_title();
+    $last4 = $order->get_meta('_payment_card_last4');
+    $exp_month = $order->get_meta('_payment_card_expiry_month');
+    $exp_year = $order->get_meta('_payment_card_expiry_year');
+    ?>
+    <div class="price-summary">
+        <h3>Price Summary</h3>
+        
+        <div class="paid-by">
+            <span class="label"><i class="fas fa-credit-card"></i> Payment Method</span>
+            <div class="payment-info">
+                <?php echo esc_html($payment_method_title); ?>
+            </div>
+        </div>
+        
+        <div class="order-totals">
+            <div class="subtotal">
+                <span class="label">Subtotal</span>
+                <span class="subtotal-amount"><?php echo wc_price($subtotal); ?></span>
+            </div>
+            <?php if ($discount > 0) : ?>
+            <div class="discount">
+                <div class="label-group">
+                    <span class="label">Discount</span>
+                    <?php 
+                    $coupon_codes = $order->get_coupon_codes();
+                    if (!empty($coupon_codes)) :
+                        $coupon_code = $coupon_codes[0];
+                    ?>
+                    <div class="coupon-badge">
+                        <?php echo esc_html($coupon_code); ?>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                <span class="discount-amount">-<?php echo wc_price($discount); ?></span>
+            </div>
+            <?php endif; ?>
+            <div class="total">
+                <span class="label">Total</span>
+                <span class="total-amount"><?php echo wc_price($total); ?></span>
+            </div>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('bwp_thankyou_totals', 'bwp_thankyou_totals_shortcode');
