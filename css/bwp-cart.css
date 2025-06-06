@@ -75,11 +75,6 @@
     flex: 1;
 }
 
-.booking-meta {
-    color: #666;
-    font-size: 14px;
-}
-
 .guests {
     display: flex;
     flex-wrap: wrap;
@@ -313,18 +308,32 @@
     font-size: 1.1em;
 }
 
+.booking-title {
+    margin-bottom: 16px;
+}
+
 .booking-meta {
-    font-size: 0.9em;
+    display: flex;
+    flex-wrap: wrap;
     color: #666;
+    font-size: 14px;
+    gap: 16px;
+}
+
+.booking-meta i {
+    font-size: 18px;
 }
 
 .booking-meta .date {
-    margin-bottom: 8px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
 
 .booking-meta .guests {
     display: flex;
     gap: 16px;
+    margin-top: 0;
 }
 
 .booking-meta .guest-type {
