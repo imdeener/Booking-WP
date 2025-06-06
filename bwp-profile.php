@@ -1,12 +1,17 @@
 <?php
 /**
- * BWP Profile Functionality
- * 
- * Implements customer profile display functionality for Booking WP
+ * BWP Profile functionality
+ *
+ * @package BWP
  */
 
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+    exit;
+}
+
+// Ensure WooCommerce is active
+if (!class_exists('WooCommerce')) {
+    return;
 }
 
 /**
@@ -24,7 +29,7 @@ function bwp_add_profile_image_field($user) {
             <td>
                 <div class="bwp-profile-image-preview" style="margin-bottom: 10px;">
                     <?php if ($profile_image): ?>
-                        <img src="<?php echo esc_url($profile_image); ?>" style="max-width: 150px; height: auto; border-radius: 50%;">
+                        <img src="<?php echo esc_url($profile_image); ?>" style="max-width: 150px; height: auto;">
                     <?php endif; ?>
                 </div>
                 <input type="text" 
@@ -104,6 +109,32 @@ add_action('personal_options_update', 'bwp_save_profile_image_field');
 add_action('edit_user_profile_update', 'bwp_save_profile_image_field');
 
 /**
+ * Handle AJAX profile update
+ */
+function bwp_handle_profile_update() {
+    check_ajax_referer('bwp_update_profile', 'nonce');
+    
+    $user_id = get_current_user_id();
+    if (!$user_id) {
+        wp_send_json_error('User not logged in');
+    }
+    
+    $customer = new WC_Customer($user_id);
+    
+    // Update billing details
+    $customer->set_billing_first_name(sanitize_text_field($_POST['first_name']));
+    $customer->set_billing_last_name(sanitize_text_field($_POST['last_name']));
+    $customer->set_billing_email(sanitize_email($_POST['email']));
+    $customer->set_billing_phone(sanitize_text_field($_POST['phone']));
+    $customer->update_meta_data('billing_thai_id', sanitize_text_field($_POST['thai_id']));
+    
+    $customer->save();
+    
+    wp_send_json_success();
+}
+add_action('wp_ajax_bwp_update_profile', 'bwp_handle_profile_update');
+
+/**
  * Display customer profile information with avatar
  */
 function bwp_customer_profile_shortcode() {
@@ -144,34 +175,64 @@ function bwp_customer_profile_shortcode() {
             </div>
          
         <div class="profile-info">
-        <div class="profile-header">
-            <div class="profile-title">
-                <h2>Your Information</h2>
-                <?php if (is_account_page()): ?>
-                <a href="<?php echo esc_url(wc_get_endpoint_url('edit-account', '', wc_get_page_permalink('myaccount'))); ?>" class="edit-profile">
-                    <i class="fas fa-pencil-alt"></i>
-                    <span>Edit Profile</span>
-                </a>
-                <?php endif; ?>
-            </div>
-        </div>
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">Name</span>
-                    <span class="info-value"><?php echo esc_html($first_name . ' ' . $last_name); ?></span>
+        <div class="profile-title">
+                    <h2>Your Information</h2>
+                    <?php if (is_account_page()): ?>
+                    <button type="button" class="edit-profile" id="edit-profile-btn">
+                        <i class="fas fa-pencil-alt"></i>
+                        <span>Edit Profile</span>
+                    </button>
+                    <?php endif; ?>
                 </div>
-                <div class="info-item">
-                    <span class="info-label">Thai ID/Passport</span>
-                    <span class="info-value"><?php echo esc_html($thai_id); ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Email</span>
-                    <span class="info-value"><?php echo esc_html($email); ?></span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Phone</span>
-                    <span class="info-value"><?php echo esc_html($phone); ?></span>
-                </div>
+        <div class="profile-forms">
+                <form class="info-grid" id="profile-form" style="display: none;">
+                    <?php wp_nonce_field('bwp_update_profile', 'bwp_profile_nonce'); ?>
+                    <div class="info-item">
+                        <label class="info-label" for="first_name">First Name</label>
+                        <input type="text" id="first_name" name="first_name" value="<?php echo esc_attr($first_name); ?>" class="info-input">
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label" for="last_name">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" value="<?php echo esc_attr($last_name); ?>" class="info-input">
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label" for="thai_id">Thai ID/Passport</label>
+                        <input type="text" id="thai_id" name="thai_id" value="<?php echo esc_attr($thai_id); ?>" class="info-input">
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label" for="email">Email</label>
+                        <input type="email" id="email" name="email" value="<?php echo esc_attr($email); ?>" class="info-input">
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label" for="phone">Phone</label>
+                        <input type="tel" id="phone" name="phone" value="<?php echo esc_attr($phone); ?>" class="info-input">
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="save-profile-btn">
+                            <i class="fas fa-check"></i> Save Changes
+                        </button>
+                        <button type="button" class="cancel-edit-btn">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+                <div class="info-grid" id="profile-display">
+                    <div class="info-item">
+                        <span class="info-label">Name</span>
+                        <span class="info-value"><?php echo esc_html($first_name . ' ' . $last_name); ?></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Thai ID/Passport</span>
+                        <span class="info-value"><?php echo esc_html($thai_id); ?></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value"><?php echo esc_html($email); ?></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone</span>
+                        <span class="info-value"><?php echo esc_html($phone); ?></span>
+                    </div>
             </div>
         </div>
     </div>

@@ -8,8 +8,9 @@
     gap: 32px;
 }
 
-.profile-header {
+.profile-forms {
     display: flex;
+    width: 100%;
     align-items: center;
     margin-bottom: 24px;
     gap: 20px;
@@ -58,7 +59,10 @@
 }
 
 .profile-info {
+    display: flex;
+    flex-direction: column;
     width: 100%;
+    gap: 24px;
 }
 
 .profile-title {
@@ -90,6 +94,7 @@
 
 .info-grid {
     display: grid;
+    width: 100%;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
 }
@@ -111,9 +116,64 @@
     font-weight: 500;
 }
 
+.info-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 15px;
+    color: #333;
+    transition: border-color 0.2s;
+}
+
+.info-input:focus {
+    border-color: #4a90e2;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.form-buttons {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.save-profile-btn,
+.cancel-edit-btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.save-profile-btn {
+    background: #4a90e2;
+    color: white;
+}
+
+.save-profile-btn:hover {
+    background: #357abd;
+}
+
+.cancel-edit-btn {
+    background: #f1f1f1;
+    color: #666;
+}
+
+.cancel-edit-btn:hover {
+    background: #e4e4e4;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-    .profile-header {
+    .profile-forms {
         flex-direction: column;
         text-align: center;
     }
