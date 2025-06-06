@@ -67,6 +67,7 @@
 
 .profile-title {
     display: flex;
+    flex-wrap: wrap;
     width: 100%;
     justify-content: space-between;
     align-items: center;
@@ -74,7 +75,7 @@
 }
 
 .profile-title h2 {
-    margin: 0 0 8px 0;
+    margin-bottom: 0 !important;
     font-size: 24px;
     color: #333;
 }
@@ -95,7 +96,7 @@
 .info-grid {
     display: grid;
     width: 100%;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(2, minmax(0px, 1fr))
     gap: 20px;
 }
 
@@ -173,13 +174,13 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .bwp-customer-profile {
+        flex-direction: column;
+        align-items: center;
+    }
+
     .profile-forms {
         flex-direction: column;
-        text-align: center;
-    }
-    
-    .profile-title {
-        text-align: center;
     }
     
     .info-grid {
