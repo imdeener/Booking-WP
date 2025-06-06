@@ -59,10 +59,49 @@ jQuery(function($) {
         $('#edit-profile-btn').show();
     });
 
+    // Custom validation messages
+    const validationMessages = {
+        first_name: 'Please enter at least 2 letters. Numbers and special characters are not allowed.',
+        last_name: 'Please enter at least 2 letters. Numbers and special characters are not allowed.',
+        thai_id: 'Please enter a valid Thai ID (13 digits) or Passport number (at least 8 characters)',
+        email: 'Please enter a valid email address',
+        phone: 'Please enter a valid phone number (at least 9 digits, can include + for country code)'
+    };
+
+    // Add validation listeners to each input
+    Object.keys(validationMessages).forEach(function(field) {
+        $(`#${field}`).on('input', function() {
+            const input = $(this);
+            const isValid = input[0].checkValidity();
+            const errorSpan = input.next('.validation-error');
+            
+            if (errorSpan.length === 0) {
+                input.after(`<span class="validation-error" style="display: none;"></span>`);
+            }
+            
+            if (!isValid) {
+                input.next('.validation-error')
+                    .text(validationMessages[field])
+                    .show();
+            } else {
+                input.next('.validation-error').hide();
+            }
+        });
+    });
+
     // Handle form submission
     $('#profile-form').on('submit', function(e) {
         e.preventDefault();
         
+        // Check form validity
+        if (!this.checkValidity()) {
+            // Trigger browser's native validation
+            if (this.reportValidity) {
+                this.reportValidity();
+            }
+            return;
+        }
+
         const formData = new FormData(this);
         formData.append('action', 'bwp_update_profile');
         formData.append('nonce', $('#bwp_profile_nonce').val());

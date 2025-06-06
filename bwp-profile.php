@@ -188,24 +188,54 @@ function bwp_customer_profile_shortcode() {
                 <form class="info-grid" id="profile-form" style="display: none;">
                     <?php wp_nonce_field('bwp_update_profile', 'bwp_profile_nonce'); ?>
                     <div class="info-item">
-                        <label class="info-label" for="first_name">First Name</label>
-                        <input type="text" id="first_name" name="first_name" value="<?php echo esc_attr($first_name); ?>" class="info-input">
+                        <label class="info-label" for="first_name">First Name *</label>
+                        <input type="text" id="first_name" name="first_name" 
+                               value="<?php echo esc_attr($first_name); ?>" 
+                               pattern="[A-Za-z ]{2,}" 
+                               title="Please enter at least 2 letters. Numbers and special characters are not allowed."
+                               placeholder="Enter your first name"
+                               class="info-input"
+                               required>
                     </div>
                     <div class="info-item">
-                        <label class="info-label" for="last_name">Last Name</label>
-                        <input type="text" id="last_name" name="last_name" value="<?php echo esc_attr($last_name); ?>" class="info-input">
+                        <label class="info-label" for="last_name">Last Name *</label>
+                        <input type="text" id="last_name" name="last_name" 
+                               value="<?php echo esc_attr($last_name); ?>" 
+                               pattern="[A-Za-z ]{2,}" 
+                               title="Please enter at least 2 letters. Numbers and special characters are not allowed."
+                               placeholder="Enter your last name"
+                               class="info-input"
+                               required>
                     </div>
                     <div class="info-item">
-                        <label class="info-label" for="thai_id">Thai ID/Passport</label>
-                        <input type="text" id="thai_id" name="thai_id" value="<?php echo esc_attr($thai_id); ?>" class="info-input">
+                        <label class="info-label" for="thai_id">Thai ID/Passport *</label>
+                        <input type="text" id="thai_id" name="thai_id" 
+                               value="<?php echo esc_attr($thai_id); ?>" 
+                               pattern="[0-9A-Za-z]{8,}" 
+                               title="Please enter a valid Thai ID (13 digits) or Passport number (at least 8 characters)"
+                               placeholder="Enter Thai ID or Passport number"
+                               class="info-input"
+                               required>
                     </div>
                     <div class="info-item">
-                        <label class="info-label" for="email">Email</label>
-                        <input type="email" id="email" name="email" value="<?php echo esc_attr($email); ?>" class="info-input">
+                        <label class="info-label" for="email">Email *</label>
+                        <input type="email" id="email" name="email" 
+                               value="<?php echo esc_attr($email); ?>" 
+                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" 
+                               title="Please enter a valid email address"
+                               placeholder="Enter your email address"
+                               class="info-input"
+                               required>
                     </div>
                     <div class="info-item">
-                        <label class="info-label" for="phone">Phone</label>
-                        <input type="tel" id="phone" name="phone" value="<?php echo esc_attr($phone); ?>" class="info-input">
+                        <label class="info-label" for="phone">Phone *</label>
+                        <input type="tel" id="phone" name="phone" 
+                               value="<?php echo esc_attr($phone); ?>" 
+                               pattern="[0-9+]{9,}" 
+                               title="Please enter a valid phone number (at least 9 digits, can include + for country code)"
+                               placeholder="Enter your phone number"
+                               class="info-input"
+                               required>
                     </div>
                     <div class="form-buttons">
                         <button type="submit" class="save-profile-btn">

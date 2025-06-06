@@ -121,16 +121,32 @@
     width: 100%;
     padding: 8px 12px;
     border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 15px;
+    border-radius: 4px;
+    font-size: 14px;
     color: #333;
-    transition: border-color 0.2s;
+    transition: border-color 0.3s;
 }
 
 .info-input:focus {
-    border-color: #4a90e2;
+    border-color: #2271b1;
     outline: none;
-    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+.info-input:invalid {
+    border-color: #dc3232;
+}
+
+.validation-error {
+    display: none;
+    color: #dc3232;
+    font-size: 12px;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.info-input:invalid ~ .validation-error {
+    display: block;
 }
 
 .form-buttons {
