@@ -357,12 +357,14 @@ function bwp_customer_information_shortcode() {
     <div id="privacy-modal" class="privacy-modal" style="display: none;">
         <div class="privacy-modal-content">
             <div class="privacy-modal-header">
-                <h3>Privacy Policy</h3>
+                <h3><i class="fa-solid fa-file"></i> <?php 
+                $privacy_page = get_post(3);
+                echo $privacy_page ? esc_html($privacy_page->post_title) : 'Privacy Policy';
+                ?></h3>
                 <span class="privacy-modal-close">&times;</span>
             </div>
             <div class="privacy-modal-body">
                 <?php
-                $privacy_page = get_post(3);
                 if ($privacy_page) {
                     echo apply_filters('the_content', $privacy_page->post_content);
                 } else {
