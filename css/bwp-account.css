@@ -1,0 +1,8 @@
+.woocommerce-MyAccount-navigation {
+    display: none !important;
+}
+
+/* Make content full width since nav is hidden */
+.woocommerce-MyAccount-content {
+    width: 100% !important;
+}

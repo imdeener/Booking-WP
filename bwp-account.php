@@ -15,6 +15,16 @@ if (!class_exists('WooCommerce')) {
 }
 
 /**
+ * Enqueue account styles
+ */
+function bwp_enqueue_account_styles() {
+    if (is_account_page()) {
+        wp_enqueue_style('bwp-account', plugins_url('css/bwp-account.css', __FILE__));
+    }
+}
+add_action('wp_enqueue_scripts', 'bwp_enqueue_account_styles');
+
+/**
  * Replace dashboard content with payment methods
  */
 function bwp_replace_dashboard_content() {
@@ -34,36 +44,3 @@ function bwp_replace_dashboard_content() {
     });
 }
 add_action('template_redirect', 'bwp_replace_dashboard_content');
-
-/**
- * Set payment methods as active tab
- */
-function bwp_set_payment_methods_active($classes, $endpoint) {
-    if (!is_wc_endpoint_url()) {
-        if ($endpoint === 'payment-methods') {
-            $classes[] = 'is-active';
-        } elseif ($endpoint === 'dashboard') {
-            $key = array_search('is-active', $classes);
-            if ($key !== false) {
-                unset($classes[$key]);
-            }
-        }
-    }
-    return $classes;
-}
-add_filter('woocommerce_account_menu_item_classes', 'bwp_set_payment_methods_active', 10, 2);
-
-/**
- * Reorder menu items to show payment methods first
- */
-function bwp_reorder_account_menu($menu_items) {
-    // Move payment methods to the top
-    $payment_methods = $menu_items['payment-methods'];
-    unset($menu_items['payment-methods']);
-    
-    return array_merge(
-        ['payment-methods' => $payment_methods],
-        $menu_items
-    );
-}
-add_filter('woocommerce_account_menu_items', 'bwp_reorder_account_menu');
