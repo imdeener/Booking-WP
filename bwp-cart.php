@@ -349,8 +349,38 @@ function bwp_customer_information_shortcode() {
             </div>
 
             <?php wp_nonce_field('bwp_save_customer_info', 'bwp_nonce'); ?>
-            <button type="submit" class="submit-button">Continue to Payment</button>
+            <button type="button" id="continue-btn" class="submit-button">Continue</button>
         </form>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacy-modal" class="privacy-modal" style="display: none;">
+        <div class="privacy-modal-content">
+            <div class="privacy-modal-header">
+                <h3>Privacy Policy</h3>
+                <span class="privacy-modal-close">&times;</span>
+            </div>
+            <div class="privacy-modal-body">
+                <?php
+                $privacy_page = get_post(3);
+                if ($privacy_page) {
+                    echo apply_filters('the_content', $privacy_page->post_content);
+                } else {
+                    echo '<p>Privacy policy content not found.</p>';
+                }
+                ?>
+            </div>
+            <div class="privacy-modal-footer">
+                <div class="privacy-checkbox">
+                    <input type="checkbox" id="accept-privacy" required>
+                    <label for="accept-privacy">I have read and agree to the Privacy Policy</label>
+                </div>
+                <div class="privacy-buttons">
+                    <button type="button" class="btn-cancel" id="privacy-cancel">Cancel</button>
+                    <button type="button" class="btn-accept" id="privacy-accept" disabled>Accept & Continue</button>
+                </div>
+            </div>
+        </div>
     </div>
     <?php
     return ob_get_clean();
@@ -554,6 +584,7 @@ add_shortcode('msc_order_totals_summary', 'bwp_order_summary_shortcode');
 function bwp_cart_enqueue_styles() {
     wp_enqueue_style('bwp-cart-styles', plugins_url('css/bwp-cart.css', __FILE__));
     wp_enqueue_script('bwp-cart-script', plugins_url('js/bwp-cart.js', __FILE__), array('jquery'), '', true);
+    wp_enqueue_script('bwp-privacy-modal', plugins_url('js/bwp-privacy-modal.js', __FILE__), array('jquery'), '', true);
     
     wp_localize_script('bwp-cart-script', 'bwp_ajax', array(
         'ajax_url' => admin_url('admin-ajax.php'),

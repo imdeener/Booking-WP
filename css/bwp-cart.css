@@ -198,10 +198,6 @@
     border-radius: 6px;
 }
 
-
-
-
-
 /* Submit Button */
 .submit-button {
     background-color: #007bff;
@@ -218,7 +214,14 @@
 }
 
 .submit-button:hover {
-    background-color: #0056b3;
+    background: linear-gradient(135deg, #1e5a96, #2980b9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.submit-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
 }
 
 .submit-button:disabled {
@@ -559,4 +562,185 @@
 
 .confirm-delete-btn:hover {
     background: #d43e3e;
+}
+
+/* Privacy Policy Modal */
+.privacy-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.privacy-modal-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.privacy-modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+}
+
+.privacy-modal-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.privacy-modal-close {
+    font-size: 28px;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.3s;
+}
+
+.privacy-modal-close:hover {
+    color: #333;
+}
+
+.privacy-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: 60vh;
+}
+
+.privacy-modal-body h1,
+.privacy-modal-body h2,
+.privacy-modal-body h3 {
+    color: #333;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.privacy-modal-body p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.privacy-modal-body ul,
+.privacy-modal-body ol {
+    margin-bottom: 15px;
+    padding-left: 20px;
+}
+
+.privacy-modal-body li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    color: #555;
+}
+
+.privacy-modal-footer {
+    padding: 20px 24px;
+    border-top: 1px solid #eee;
+    background: #f8f9fa;
+}
+
+.privacy-checkbox {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.privacy-checkbox input[type="checkbox"] {
+    margin-top: 2px;
+    transform: scale(1.2);
+}
+
+.privacy-checkbox label {
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    line-height: 1.4;
+}
+
+.privacy-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.btn-cancel,
+.btn-accept {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-cancel {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+}
+
+.btn-accept {
+    background: #3498db;
+    color: white;
+}
+
+.btn-accept:hover:not(:disabled) {
+    background: #2980b9;
+}
+
+.btn-accept:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .privacy-modal {
+        padding: 10px;
+    }
+    
+    .privacy-modal-content {
+        max-height: 95vh;
+    }
+    
+    .privacy-modal-header,
+    .privacy-modal-body,
+    .privacy-modal-footer {
+        padding: 16px;
+    }
+    
+    .privacy-buttons {
+        flex-direction: column;
+    }
+    
+    .btn-cancel,
+    .btn-accept {
+        width: 100%;
+    }
 }
