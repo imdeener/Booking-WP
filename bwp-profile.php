@@ -185,7 +185,7 @@ function bwp_customer_profile_shortcode() {
                     <?php endif; ?>
                 </div>
         <div class="profile-forms">
-                <form class="info-grid" id="profile-form" style="display: none;">
+        <form class="info-grid" id="profile-form" style="display: none;">
                     <?php wp_nonce_field('bwp_update_profile', 'bwp_profile_nonce'); ?>
                     <div class="info-item">
                         <label class="info-label" for="first_name">First Name *</label>
@@ -221,7 +221,7 @@ function bwp_customer_profile_shortcode() {
                         <label class="info-label" for="email">Email *</label>
                         <input type="email" id="email" name="email" 
                                value="<?php echo esc_attr($email); ?>" 
-                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" 
+                               pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}" 
                                title="Please enter a valid email address"
                                placeholder="Enter your email address"
                                class="info-input"

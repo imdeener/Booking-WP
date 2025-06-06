@@ -264,7 +264,7 @@ function bwp_customer_information_shortcode() {
     ?>
     <div class="bwp-customer-information">
     <div class="section-header"><h2>Your Information</h2></div>
-        <form class="bwp-customer-form">
+    <form class="bwp-customer-form">
             <?php wp_nonce_field('bwp_save_customer_info', 'bwp_nonce'); ?>
             <div class="form-row">
                 <div class="form-group">
@@ -302,7 +302,7 @@ function bwp_customer_information_shortcode() {
                 <label for="email">Email Address *</label>
                 <input type="email" id="email" name="email" 
                        value="<?php echo esc_attr($billing_email); ?>" 
-                       pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" 
+                       pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}" 
                        title="Please enter a valid email address"
                        placeholder="Enter your email address"
                        required>
@@ -333,8 +333,8 @@ function bwp_customer_information_shortcode() {
                     <label for="room">Room *</label>
                     <input type="text" id="room" name="room" 
                            value="<?php echo esc_attr($billing_room); ?>" 
-                           pattern="[A-Za-z0-9-]{1,}" 
-                           title="Please enter room number/name (letters, numbers and hyphens only)"
+                           pattern="[A-Za-z0-9 \-]+" 
+                           title="Please enter room number/name (letters, numbers, spaces and hyphens only)"
                            placeholder="Enter room number"
                            required>
                 </div>
