@@ -14,7 +14,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: var(--space-m);
 }
 
 .section-header h2 {
@@ -36,7 +36,7 @@
 .coupon-badge {
     color: var(--be-03);
     padding: 2px 8px;
-    border-radius: var(--radius-m);
+    border-radius: var(--radius-s);
     border: 1px solid var(--be-03);
     font-size: var(--text-s);
     display: flex;
@@ -73,6 +73,7 @@
     padding: var(--space-s);
     border: 1px solid var(--gr-03);
     border-radius: var(--radius-l);
+    align-items: center;
 }
 
 .booking-image {

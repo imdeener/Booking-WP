@@ -7,7 +7,7 @@
 }
 
 .bwp-customer-info-display .section-header {
-    margin-bottom: 24px;
+    margin-bottom: var(--space-m);
     width: 100%;
 }
 
@@ -37,9 +37,9 @@
 }
 
 .bwp-customer-info-display .section-header h2 {
-    font-size: 24px;
+    font-size: var(--text-3xl);
     margin: 0;
-    color: #333;
+    color: var(--gr-01);
 }
 
 .info-grid {
@@ -55,7 +55,7 @@
 
 .info-label {
     font-size: 14px;
-    color: #666;
+    color: var(--gr-02);
     margin-bottom: 4px;
 }
 

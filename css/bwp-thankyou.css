@@ -6,24 +6,27 @@
 }
 
 .bwp-your-bookings h2 {
-    font-size: 28px;
-    font-weight: 600;
-    margin-bottom: 25px;
-    color: #333;
+    font-size: var(--text-3xl);
+    font-weight: 500;
+    color: var(--gr-01);
+    margin-bottom: var(--space-m);
 }
 
 .booking-header {
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    padding: 25px;
-    margin-bottom: 30px;
+    background: #E7E7E7;
+    border-radius: var(--space-m);
+    padding: var(--space-m);
+    margin-bottom: var(--space-m);
 }
 
-.booking-info {
+.bwp-your-bookings .booking-info {
     display: flex;
-    gap: 40px;
+    flex-direction: row !important;
     flex-wrap: wrap;
+    gap: var(--space-s);
+    justify-content: space-between;
+    box-shadow: none;
+    background: transparent;
 }
 
 .info-group {
@@ -44,149 +47,67 @@
 }
 
 .info-text .label {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 4px;
+    font-size: var(--text-m);
+    font-weight: 500;
+    color: var(--gr-01);
+    margin-bottom: var(--space-xs);
 }
 
 .info-text .value {
-    font-size: 16px;
+    font-size: var(--text-l);
     font-weight: 500;
-    color: #333;
+    color: var(--gr-01);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-2xs);
 }
 
 .info-text .value i {
-    font-size: 16px;
-    color: #666;
+    font-size: var(--text-l);;
+    color: var(--be-03);
     cursor: pointer;
     transition: color 0.2s;
 }
 
 .info-text .value i:hover {
-    color: #4a90e2;
+    opacity: 0.8;
 }
 
 /* Price Summary Styles */
 .price-summary {
-    background: #fff;
+    background: var(--light);
     border-radius: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    padding: 25px;
-    margin: 30px 0;
+    padding: var(--space-m);
 }
 
-.price-summary h3 {
-    font-size: 24px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.paid-by {
-    border-bottom: 1px solid #eee;
-    padding-bottom: 20px;
-    margin-bottom: 20px;
+.price-summary h2 {
+    font-size: var(--text-3xl);
+    font-weight: 500;
+    color: var(--gr-01);
+    margin-bottom: var(--space-m);
 }
 
 .paid-by .label {
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 12px;
-}
-
-.paid-by .label i {
-    color: #4a90e2;
+    gap: var(--space-2xs);
+    color: var(--gr-01);
+    font-size: var(--text-m);
+    font-weight: 500;
+    margin-bottom: var(--space-xs);
 }
 
 .payment-info {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 15px;
-    color: #333;
-    font-size: 15px;
-}
-
-.order-totals {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.order-totals > div {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.order-totals .label {
-    color: #666;
-}
-
-.discount {
-    color: #e67e22;
+    background: var(--bg-body);
+    border-radius: var(--radius-m);
+    padding: var(--space-m);
+    color: var(--gr-01);
+    font-size: var(--text-m);
 }
 
 .discount .label-group {
     display: flex;
     align-items: center;
     gap: 10px;
-}
-
-.coupon-badge {
-    color: var(--be-03);
-    padding: 2px 8px;
-    border-radius: var(--radius-m);
-    border: 1px solid var(--be-03);
-    font-size: var(--text-s);
-    display: flex;
-    align-items: center;
-    gap: var(--space-3xs);
-}
-
-.total {
-    border-top: 1px solid #eee;
-    padding-top: 15px;
-    font-weight: 600;
-    font-size: 18px;
-}
-
-.taxes-note {
-    display: block;
-    font-size: 12px;
-    color: #666;
-    margin-top: 5px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .booking-info {
-        gap: 25px;
-    }
-    
-    .info-group {
-        width: 100%;
-    }
-    
-    .bwp-your-bookings {
-        padding: 20px 15px;
-    }
-    
-    .booking-header {
-        padding: 20px;
-    }
-    
-    .price-summary {
-        margin: 20px 0;
-        padding: 20px;
-    }
-    
-    .price-summary h3 {
-        font-size: 20px;
-    }
 }

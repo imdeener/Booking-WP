@@ -78,7 +78,8 @@
 .profile-title h2 {
     margin-bottom: 0 !important;
     font-size: var(--text-3xl);
-    color: var(--gr-01);
+    color: var(--gr-01) !important;
+    font-weight: 500 !important;
 }
 
 .edit-profile {
@@ -126,7 +127,7 @@
     width: 100%;
     padding: var(--space-2xs) var(--space-xs);
     border: 1px solid var(--gr-03);
-    border-radius: var(--radius-m);
+    border-radius: var(--radius-s);
     font-size: var(--text-m);
     color: var(--gr-01);
     transition: border-color 0.3s;
