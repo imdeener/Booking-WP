@@ -17,6 +17,12 @@
     margin-bottom: 20px;
 }
 
+.section-header h2 {
+    margin: 0;
+    font-size: var(--text-3xl);
+    color: var(--gr-01);
+}
+
 .section-header.discount {
     margin-bottom: 10px;
 }
@@ -28,46 +34,55 @@
 }
 
 .coupon-badge {
-    background: #FFF3E0;
-    color: #E65100;
+    color: var(--be-03);
     padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 12px;
+    border-radius: var(--radius-m);
+    border: 1px solid var(--be-03);
+    font-size: var(--text-s);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--space-3xs);
 }
 
 .remove-coupon {
     background: none;
     border: none;
     padding: 0;
-    color: #E65100;
+    color: var(--be-03);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--text-s);
     display: flex;
     align-items: center;
 }
 
 .remove-coupon:hover {
-    color: #BF360C;
+    color: var(--error);
+}
+
+.booking-items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
 }
 
 .booking-item {
     position: relative;
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
-    padding: 16px;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    margin-bottom: 16px;
+    gap: var(--space-s);
+    padding: var(--space-s);
+    border: 1px solid var(--gr-03);
+    border-radius: var(--radius-l);
+}
+
+.booking-image {
+    display: flex;
 }
 
 .booking-image img {
     width: 80px;
     height: 80px;
-    border-radius: 8px;
+    border-radius: var(--radius-s);
     object-fit: cover;
 }
 
@@ -96,16 +111,14 @@
 .quantity-controls {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: #f5f5f5;
-    padding: 4px 8px;
-    border-radius: 20px;
+    gap: var(--space-5xs);
 }
 
 .quantity-btn {
-    background: none;
-    border: none;
-    color: #007bff;
+    background: var(--gr-00);
+    border-radius: var(--radius-full);
+    border: 0;
+    color: var(--be-03);
     font-size: 18px;
     width: 24px;
     height: 24px;
@@ -114,7 +127,7 @@
     justify-content: center;
     cursor: pointer;
     padding: 0;
-    transition: opacity 0.2s;
+    transition: opacity .2s;
 }
 
 .quantity-btn:hover {
@@ -140,8 +153,8 @@
 
 .remove-item {
     position: absolute;
-    top: -12px;
-    right: -12px;
+    top: -8px;
+    right: -8px;
     width: 24px;
     height: 24px;
     display: flex;
@@ -163,6 +176,7 @@
     margin-top: 24px;
     padding-top: 24px;
     border-top: 1px solid #eee;
+    display: none;
 }
 
 /* Customer Information Form */
@@ -175,49 +189,53 @@
 
 .form-row {
     display: flex;
-    gap: 16px;
-    margin-bottom: 16px;
+    gap: var(--space-s);
+    margin-bottom: var(--space-s);
 }
 
 .form-group {
     flex: 1;
-    margin-bottom: 16px;
+    margin-bottom: var(--space-s);
 }
 
 .form-group label {
+    color: var(--be-03);
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: var(--space-xs);
     font-weight: 500;
+    display: flex !important;
+    align-items: center;
+    gap: var(--space-3xs);
 }
 
 .form-group input,
 .form-group textarea {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    border: 1px solid var(--gr-03);
+    border-radius: var(--radius-s);
 }
 
 /* Submit Button */
 .submit-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 500;
     cursor: pointer;
     width: 100%;
-    margin-top: 24px;
-    transition: background-color 0.2s;
+    /* background-color: #007bff;
+    color: var(--light);
+    border: none;
+    padding: var(--space-xs) var(--space-m);
+    border-radius: var(--radius-s);
+    font-size: var(--text-m);
+    font-weight: 500;
+    margin-top: var(--space-m);
+    transition: background-color 0.2s; */
 }
 
-.submit-button:hover {
+/* .submit-button:hover {
     background: linear-gradient(135deg, #1e5a96, #2980b9);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
-}
+} */
 
 .submit-button:active {
     transform: translateY(0);
@@ -231,14 +249,8 @@
 
 /* Order Summary */
 .bwp-order-summary {
-    background: #fff;
-    padding: 20px;
-}
-
-.summary-item {
-    display: flex;
-    gap: 16px;
-    padding: 16px 0;
+    background: var(--light);
+    padding: var(--space-m);
 }
 
 .summary-item:last-child {
@@ -246,60 +258,54 @@
 }
 
 .coupon-form {
-    margin-bottom: 24px;
+    margin-bottom: var(--space-m) 0;
 }
 
 .coupon-input-group {
     display: flex;
-    gap: 8px;
+    gap: var(--space-xs);
 }
 
 .coupon-input-group input {
     flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
+    padding: var(--space-2xs) var(--space-xs);
+    border: 1px solid var(--gr-03);
+    border-radius: var(--radius-xs);
+    font-size: var(--text-s);
 }
 
 .coupon-input-group .apply-coupon-btn {
-    padding: 8px 16px;
-    background-color: #1a1a1a;
-    color: white;
+    padding: var(--space-2xs) var(--space-s);
+    background-color: var(--gr-01);
+    color: var(--light);
     border: none;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--text-s);
     transition: background-color 0.2s;
 }
 
 .coupon-input-group .apply-coupon-btn:hover {
-    background-color: #333;
+    background-color: var(--dark);
 }
 
 .coupon-message {
-    margin-top: 8px;
-    font-size: 14px;
+    margin-top: var(--space-2xs);
+    font-size: var(--text-s);
 }
 
 .coupon-message.success {
-    color: #28a745;
+    color: var(--success);
 }
 
 .coupon-message.error {
-    color: #dc3545;
+    color: var(--error);
 }
 
 .item-image {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     overflow: hidden;
-}
-
-.item-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
 }
 
 .item-details {
@@ -307,29 +313,29 @@
 }
 
 .item-details h4 {
-    margin: 0 0 8px;
-    font-size: 1.1em;
+    margin: 0 0 var(--space-2xs);
+    font-size: var(--text-l);
 }
 
 .booking-title {
-    margin-bottom: 16px;
+    margin-bottom: var(--space-2xs);
 }
 
 .booking-meta {
     display: flex;
     flex-wrap: wrap;
-    color: #666;
-    font-size: 14px;
-    gap: 16px;
+    color: var(--gr-01);
+    font-size: var(--text-s);
+    gap: var(--space-2xs);
 }
 
 .booking-meta i {
-    font-size: 18px;
+    font-size: var(--text-l);
 }
 
 .booking-meta .date {
     display: flex;
-    gap: 8px;
+    gap: var(--space-2xs);
     align-items: center;
 }
 
@@ -342,7 +348,7 @@
 .booking-meta .guest-type {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-xs);
 }
 
 .booking-meta .guest-count {
@@ -354,16 +360,27 @@
 }
 
 .summary-item {
+    position: relative;
     display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    padding: var(--space-s);
+    border: 1px solid var(--gr-03);
+    border-radius: var(--radius-m);
+    margin-bottom: var(--space-s);
+    align-items: center;
+    .total-price {
+        span {
+            font-size: var(--text-m);
+        };
+    }
 }
 
 .item-image img {
-    width: 60px;
-    height: 60px;
-    border-radius: 6px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    border-radius: var(--radius-s);
 }
 
 .item-details {
@@ -371,84 +388,75 @@
 }
 
 .order-totals {
-    margin-top: 24px;
-    padding-top: 16px;
+    margin-top: var(--space-m);
+    padding-top: var(--space-s);
     border-top: 1px solid #eee;
 }
 
 .order-totals > div {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.section-header h2 {
-    margin: 0;
-    font-size: 1.5em;
-    color: #333;
+    margin-bottom: var(--space-2xs);
 }
 
 .total-bookings {
-    color: #666;
-    font-size: 0.9em;
+    color: var(--be-03);
+    font-size: var(--text-s);
+    font-weight: 500;
 }
 
 .booking-price {
     display: flex;
     align-items: center;
-    font-size: 1.1em;
-    color: #333;
+    font-size: var(--text-l);
+    color: var(--gr-01);
 }
 
 .price-breakdown {
-    margin-bottom: 10px;
+    /* margin-bottom: var(--space-2xs); */
 }
 
 .price-breakdown .base-price {
     font-weight: bold;
-    margin-bottom: 5px;
+    margin-bottom: var(--space-4xs);
 }
 
 .price-breakdown .additional-price {
-    color: #666;
-    font-size: 0.9em;
-    margin-left: 15px;
+    color: var(--gr-01);
+    font-size: var(--text-s);
+    margin-left: var(--space-s);
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: var(--space-4xs);
 }
 
 .price-breakdown .additional-price::before {
     content: '+';
-    color: #999;
+    color: var(--gr-01);
 }
 
 .total-price {
-    font-size: 1.3em;
-    font-weight: bold;
-    color: #2c5282;
+    span {
+        font-size: var(--text-l);
+        font-weight: 600;
+        color: var(--gr-01);
+    };
 }
 
 .total {
-    font-size: 18px;
+    font-size: var(--text-l);
     font-weight: bold;
-    margin-top: 8px;
-    padding-top: 8px;
+    margin-top: var(--space-2xs);
+    padding-top: var(--space-2xs);
     border-top: 1px solid #eee;
+    align-items: center;
 }
 
-.refund-policy {
-    margin-top: 24px;
-    padding: 16px;
-    background: #f8f8f8;
-    border-radius: 6px;
+.taxes-note {
+    font-size: var(--text-xs);
+    color: var(--gr-03);
+    font-weight: 400;
+    margin: 0;
 }
 
 /* Delete Confirmation Modal */
@@ -470,9 +478,9 @@
 }
 
 .modal-content {
-    background: white;
-    padding: 32px;
-    border-radius: 12px;
+    background: var(--light);
+    padding: var(--space-l);
+    border-radius: var(--radius-m);
     max-width: 480px;
     width: 90%;
     text-align: center;
@@ -484,24 +492,24 @@
 }
 
 .modal h2 {
-    font-size: 24px;
-    margin-bottom: 24px;
-    color: #333;
+    font-size: var(--text-l);
+    margin-bottom: var(--space-m);
+    color: var(--be-03);
 }
 
 .delete-item-details {
-    margin: 16px 0;
+    margin: var(--space-m) 0;
     text-align: left;
-    background: #f8f8f8;
-    padding: 16px;
-    border-radius: 8px;
+    background: var(--bg-body);
+    padding: var(--space-s);
+    border-radius: var(--radius-s);
 }
 
 .delete-item-details .item {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 16px;
+    gap: var(--space-s);
+    margin-bottom: var(--space-s);
 }
 
 .delete-item-details .item:last-child {
@@ -512,7 +520,7 @@
     width: 60px;
     height: 60px;
     object-fit: cover;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
 }
 
 .delete-item-details .item-info {
@@ -521,28 +529,28 @@
 
 .delete-item-details .item-title {
     font-weight: 500;
-    margin-bottom: 4px;
+    margin-bottom: var(--space-5xs);
 }
 
 .delete-item-details .item-price {
-    color: #666;
+    color: var(--gr-01);
 }
 
 .modal-actions {
     display: flex;
-    gap: 16px;
+    gap: var(--space-s);
     justify-content: center;
-    margin-top: 24px;
+    margin-top: var(--space-m);
 }
 
 .cancel-btn,
 .confirm-delete-btn {
-    padding: 12px 24px;
-    border-radius: 6px;
+    padding: var(--space-xs) var(--space-m);
+    border-radius: var(--radius-s);
     font-weight: 500;
     cursor: pointer;
     border: none;
-    font-size: 16px;
+    font-size: var(--text-s);
     transition: background-color 0.2s;
 }
 
@@ -592,7 +600,7 @@
 }
 
 .privacy-modal-header {
-    padding: 20px 24px;
+    padding: var(--space-s) var(--space-m);
     border-bottom: 1px solid #eee;
     display: flex;
     justify-content: space-between;
@@ -602,9 +610,12 @@
 
 .privacy-modal-header h3 {
     margin: 0;
-    color: #333;
+    color: var(--gr-01);
     font-size: 20px;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
 }
 
 .privacy-modal-close {
@@ -617,11 +628,11 @@
 }
 
 .privacy-modal-close:hover {
-    color: #333;
+    color: var(--gr-01);
 }
 
 .privacy-modal-body {
-    padding: 24px;
+    padding: var(--space-m);
     overflow-y: auto;
     flex: 1;
     max-height: 60vh;
@@ -630,31 +641,31 @@
 .privacy-modal-body h1,
 .privacy-modal-body h2,
 .privacy-modal-body h3 {
-    color: #333;
-    margin-top: 20px;
-    margin-bottom: 10px;
+    color: var(--gr-01);
+    margin-top: var(--space-m);
+    margin-bottom: var(--space-xs);
 }
 
 .privacy-modal-body p {
     line-height: 1.6;
-    margin-bottom: 15px;
+    margin-bottom: var(--space-s);
     color: #555;
 }
 
 .privacy-modal-body ul,
 .privacy-modal-body ol {
-    margin-bottom: 15px;
-    padding-left: 20px;
+    margin-bottom: var(--space-s);
+    padding-left: var(--space-m);
 }
 
 .privacy-modal-body li {
-    margin-bottom: 8px;
+    margin-bottom: var(--space-2xs);
     line-height: 1.5;
     color: #555;
 }
 
 .privacy-modal-footer {
-    padding: 20px 24px;
+    padding: var(--space-s) var(--space-m);
     border-top: 1px solid #eee;
     background: #f8f9fa;
 }
@@ -672,10 +683,11 @@
 }
 
 .privacy-checkbox label {
-    font-size: 14px;
-    color: #333;
+    font-size: var(--text-s);
+    color: var(--gr-01);
     cursor: pointer;
     line-height: 1.4;
+    font-weight: 600;
 }
 
 .privacy-buttons {
@@ -686,10 +698,10 @@
 
 .btn-cancel,
 .btn-accept {
-    padding: 10px 20px;
+    padding: var(--space-xs) var(--space-m);
     border: none;
-    border-radius: 6px;
-    font-size: 14px;
+    border-radius: var(--radius-s);
+    font-size: var(--text-s);
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s;
@@ -697,7 +709,7 @@
 
 .btn-cancel {
     background: #6c757d;
-    color: white;
+    color: var(--light);
 }
 
 .btn-cancel:hover {
@@ -705,12 +717,12 @@
 }
 
 .btn-accept {
-    background: #3498db;
-    color: white;
+    background: var(--be-03);
+    color: var(--light);
 }
 
 .btn-accept:hover:not(:disabled) {
-    background: #2980b9;
+    opacity: 0.8;
 }
 
 .btn-accept:disabled {
@@ -732,7 +744,7 @@
     .privacy-modal-header,
     .privacy-modal-body,
     .privacy-modal-footer {
-        padding: 16px;
+        padding: var(--space-s);
     }
     
     .privacy-buttons {

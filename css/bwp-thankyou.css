@@ -139,14 +139,14 @@
 }
 
 .coupon-badge {
-    background: #fff3e6;
-    color: #e67e22;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 13px;
+    color: var(--be-03);
+    padding: 2px 8px;
+    border-radius: var(--radius-m);
+    border: 1px solid var(--be-03);
+    font-size: var(--text-s);
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: var(--space-3xs);
 }
 
 .total {
