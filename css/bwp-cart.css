@@ -172,6 +172,13 @@
     line-height: 1;
 }
 
+.remove-item:hover {
+    background: #cb2e2e;
+    a {
+        color: var(--light);
+    }
+}
+
 /* Add-on Bundles */
 .add-on-bundles {
     margin-top: 24px;
