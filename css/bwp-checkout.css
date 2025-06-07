@@ -130,6 +130,10 @@
     display: none !important;
 }
 
+#order_review_heading {
+    display: none !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .info-grid {
