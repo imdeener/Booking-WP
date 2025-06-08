@@ -12,9 +12,22 @@
 /* Your Booking Section */
 .section-header {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     margin-bottom: var(--space-m);
+    gap: var(--space-xs);
+}
+
+.section-header .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+}
+
+.section-header .btn svg {
+    width: 24px;
+    height: 24px;
 }
 
 .section-header h2 {
@@ -88,7 +101,7 @@
 }
 
 .booking-details {
-    flex: 1;
+    /* flex: 1; */
 }
 
 .guests {

@@ -150,7 +150,7 @@ function bwp_customer_profile_shortcode() {
     
     // Get profile image
     $profile_image = get_user_meta($user_id, 'bwp_profile_image', true);
-    $default_image = plugins_url('assets/images/default-avatar.png', __FILE__);
+    $default_image = '/wp-content/uploads/2025/06/sbcf-default-avatar.webp';
     
     // Get billing info
     $first_name = $customer->get_billing_first_name();
@@ -178,7 +178,7 @@ function bwp_customer_profile_shortcode() {
         <div class="profile-title">
                     <h2>Your Information</h2>
                     <?php if (is_account_page()): ?>
-                    <button type="button" class="edit-profile btn btn--quaternary btn--s" id="edit-profile-btn">
+                    <button type="button" class="edit-profile btn btn--primary btn--quaternary btn--s" id="edit-profile-btn">
                         <i class="fas fa-pencil-alt"></i>
                         <span>Edit</span>
                     </button>
@@ -286,10 +286,10 @@ Phone *</label>
                                required>
                     </div>
                     <div class="form-buttons">
-                        <button type="submit" class="save-profile-btn btn btn--s">
+                        <button type="submit" class="save-profile-btn btn btn--primary btn--s">
                             <i class="fas fa-check"></i> Save Changes
                         </button>
-                        <button type="button" class="cancel-edit-btn btn btn--s btn--quaternary">
+                        <button type="button" class="cancel-edit-btn btn btn--primary btn--s btn--quaternary">
                             <i class="fas fa-times"></i> Cancel
                         </button>
                     </div>
