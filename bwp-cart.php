@@ -445,7 +445,7 @@ Special Requests</label>
             </div>
 
             <?php wp_nonce_field('bwp_save_customer_info', 'bwp_nonce'); ?>
-            <button type="button" id="continue-btn" class="submit-button btn btn--s">Continue</button>
+            <button type="button" id="continue-btn" class="submit-button btn btn--primary btn--s">Continue</button>
         </form>
     </div>
 

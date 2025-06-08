@@ -19,16 +19,12 @@
 }
 
 .edit-link {
-    font-size: 14px;
-    color: #007bff;
+    font-size: var(--text-xs);
+    color: var(--be-03);
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 4px;
-}
-
-.edit-link:hover {
-    text-decoration: underline;
+    gap: var(--space-5xs);
 }
 
 .edit-link:before {
