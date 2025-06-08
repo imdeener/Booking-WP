@@ -12,6 +12,21 @@
     margin-bottom: var(--space-m);
 }
 
+.info-text .value i {
+    margin-left: 5px;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.info-text .value i:hover {
+    color: #333;
+}
+
+.info-text .value i.text-success {
+    color: #28a745;
+}
+
 .booking-header {
     background: #E7E7E7;
     border-radius: var(--space-m);
