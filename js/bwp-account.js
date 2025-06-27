@@ -1,6 +1,7 @@
 jQuery(function($) {
     // Only on the main account page
-    if (window.location.pathname.endsWith('/my-account/')) {
+    const path = window.location.pathname;
+    if (path.endsWith('/my-account/') || path.endsWith('/my-account')) {
         // Find and click the payment methods link
         $('.woocommerce-MyAccount-navigation-link--payment-methods a').trigger('click');
         
