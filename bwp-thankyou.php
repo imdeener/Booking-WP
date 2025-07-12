@@ -168,14 +168,73 @@ function bwp_thankyou_bookings_shortcode() {
             $product = $item->get_product();
             if (!$product) continue;
             
+            $product_id = $product->get_id();
+            
             // Get booking meta data
             $booking_date = $item->get_meta('Booking Date');
             $adults = $item->get_meta('Adults');
             $children = $item->get_meta('Children');
+            $departure_location = $item->get_meta('Departure Location');
             
             // Set defaults if empty
-            $adults = !empty($adults) ? $adults : 0;
-            $children = !empty($children) ? $children : 0;
+            $adults = !empty($adults) ? intval($adults) : 0;
+            $children = !empty($children) ? intval($children) : 0;
+            
+            // Calculate correct price including add-ons
+            $base_price = floatval($product->get_price('edit'));
+            $additional_adult_price = 0;
+            $additional_child_price = 0;
+            $additional_departure_price = 0;
+            
+            if (function_exists('get_field')) {
+                // Get departure price
+                if (!empty($departure_location)) {
+                    $departure_group = get_field('departure', $product_id);
+                    
+                    if ($departure_group) {
+                        if ($departure_location === 'phuket') {
+                            $price_val = isset($departure_group['phuket_additional_price']) ? $departure_group['phuket_additional_price'] : 0;
+                        } elseif ($departure_location === 'khaolak') {
+                            $price_val = isset($departure_group['khaolak_additional_price']) ? $departure_group['khaolak_additional_price'] : 0;
+                        }
+                        if (is_numeric($price_val)) {
+                            $additional_departure_price = floatval($price_val);
+                        }
+                    }
+                }
+                
+                // Get adult tier price
+                if ($adults >= 2) {
+                    $adult_tiers = get_field('adult_price_tiers', $product_id);
+                    if ($adult_tiers) {
+                        foreach ($adult_tiers as $tier) {
+                            if (isset($tier['number_of_adults']) && intval($tier['number_of_adults']) == $adults) {
+                                if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
+                                    $additional_adult_price = floatval($tier['additional_price']);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Get child tier price
+                if ($children >= 1) {
+                    $child_tiers = get_field('child_price_tiers', $product_id);
+                    if ($child_tiers) {
+                        foreach ($child_tiers as $tier) {
+                            if (isset($tier['number_of_children']) && intval($tier['number_of_children']) == $children) {
+                                if (isset($tier['additional_price']) && is_numeric($tier['additional_price'])) {
+                                    $additional_child_price = floatval($tier['additional_price']);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            $total_price = $base_price + $additional_adult_price + $additional_child_price + $additional_departure_price;
             ?>
             <div class="booking-item">
                 <div class="item-image">
@@ -236,7 +295,7 @@ function bwp_thankyou_bookings_shortcode() {
                     </div>
                 </div>
                 <div class="item-price">
-                    <?php echo wc_price($item->get_total()); ?>
+                    <?php echo wc_price($total_price); ?>
                 </div>
             </div>
             <?php
