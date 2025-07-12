@@ -238,11 +238,31 @@ jQuery(document).ready(function ($) {
     var endDateHiddenInput = document.getElementById('bwp_end_date_hidden');
 
     if (dateRangeDisplayInput && startDateHiddenInput && endDateHiddenInput && typeof Litepicker !== 'undefined') {
+        // Function to calculate the minimum bookable date based on 5-hour rule
+        function getMinBookableDate() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            
+            // If current time is before 19:00 (7 PM), customers can book for tomorrow
+            // If current time is 19:00 or later, customers can book for the day after tomorrow
+            let minDate = new Date(now);
+            
+            if (currentHour >= 19) {
+                // After 19:00, add 2 days (skip tomorrow, allow day after tomorrow)
+                minDate.setDate(minDate.getDate() + 2);
+            } else {
+                // Before 19:00, add 1 day (allow tomorrow)
+                minDate.setDate(minDate.getDate() + 1);
+            }
+            
+            return minDate;
+        }
+        
         const picker = new Litepicker({
             element: dateRangeDisplayInput,
             singleMode: true, // Changed to single mode
             autoApply: true,
-            minDate: new Date(), // Set minDate to today
+            minDate: getMinBookableDate(), // Set minDate based on 5-hour rule
             format: 'YYYY-MM-DD',
             // separator: ' - ', // Not needed for singleMode
             numberOfMonths: 1, // Show one month for single date selection

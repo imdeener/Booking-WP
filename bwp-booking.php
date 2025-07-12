@@ -534,3 +534,65 @@ function bwp_filter_woocommerce_add_cart_item_data($cart_item_data, $product_id)
     return $cart_item_data;
 }
 add_filter('woocommerce_add_cart_item_data', 'bwp_filter_woocommerce_add_cart_item_data', 10, 2);
+
+// Validate booking date against 5-hour rule before adding to cart
+function bwp_validate_booking_date_restriction($passed, $product_id, $quantity) {
+    // Only validate for products with booking fields
+    if (!isset($_POST['bwp_start_date_hidden']) || empty($_POST['bwp_start_date_hidden'])) {
+        return $passed;
+    }
+    
+    $booking_date = sanitize_text_field($_POST['bwp_start_date_hidden']);
+    
+    // Validate date format
+    $date_obj = DateTime::createFromFormat('Y-m-d', $booking_date);
+    if (!$date_obj) {
+        wc_add_notice(__('รูปแบบวันที่ไม่ถูกต้อง', 'woocommerce'), 'error');
+        return false;
+    }
+    
+    // Get current time in Thailand timezone
+    $current_time = new DateTime('now', new DateTimeZone('Asia/Bangkok'));
+    $current_hour = (int)$current_time->format('H');
+    
+    // Calculate minimum allowed booking date based on 5-hour rule
+    $min_booking_date = clone $current_time;
+    
+    if ($current_hour >= 19) {
+        // After 19:00 (7 PM), customers can book for day after tomorrow
+        $min_booking_date->add(new DateInterval('P2D'));
+    } else {
+        // Before 19:00, customers can book for tomorrow
+        $min_booking_date->add(new DateInterval('P1D'));
+    }
+    
+    // Set time to start of day for comparison
+    $min_booking_date->setTime(0, 0, 0);
+    $booking_date_obj = clone $date_obj;
+    $booking_date_obj->setTime(0, 0, 0);
+    
+    // Check if booking date violates the 5-hour rule
+    if ($booking_date_obj < $min_booking_date) {
+        $min_date_formatted = $min_booking_date->format('d/m/Y');
+        $current_time_formatted = $current_time->format('H:i');
+        
+        if ($current_hour >= 19) {
+            $message = sprintf(
+                __('ไม่สามารถจองได้ เนื่องจากเวลาปัจจุบัน %s เกิน 19:00 น. สามารถจองได้ตั้งแต่วันที่ %s เป็นต้นไป', 'woocommerce'),
+                $current_time_formatted,
+                $min_date_formatted
+            );
+        } else {
+            $message = sprintf(
+                __('ไม่สามารถจองได้ เนื่องจากต้องจองล่วงหน้าอย่างน้อย 5 ชั่วโมงก่อนวันเดินทาง (ตัดที่เที่ยงคืน) สามารถจองได้ตั้งแต่วันที่ %s เป็นต้นไป', 'woocommerce'),
+                $min_date_formatted
+            );
+        }
+        
+        wc_add_notice($message, 'error');
+        return false;
+    }
+    
+    return $passed;
+}
+add_filter('woocommerce_add_to_cart_validation', 'bwp_validate_booking_date_restriction', 10, 3);
