@@ -122,9 +122,6 @@ function bwp_checkout_enqueue_scripts() {
     wp_enqueue_script('wc-add-to-cart');
     wp_enqueue_script('jquery-blockui');
     
-    // Enqueue our custom styles
-    wp_enqueue_style('bwp-checkout-styles', plugins_url('css/bwp-checkout.css', __FILE__));
-    
     // Localize script for AJAX
     wp_localize_script('wc-checkout', 'wc_checkout_params', array(
         'ajax_url' => admin_url('admin-ajax.php'),

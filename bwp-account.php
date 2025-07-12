@@ -32,16 +32,6 @@ function bwp_redirect_to_login() {
 add_action('template_redirect', 'bwp_redirect_to_login', 5);
 
 /**
- * Enqueue account styles
- */
-function bwp_enqueue_account_styles() {
-    if (is_account_page()) {
-        wp_enqueue_style('bwp-account', plugins_url('css/bwp-account.css', __FILE__));
-    }
-}
-add_action('wp_enqueue_scripts', 'bwp_enqueue_account_styles');
-
-/**
  * Replace dashboard content with payment methods
  */
 function bwp_replace_dashboard_content() {

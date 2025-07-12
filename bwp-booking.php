@@ -1,11 +1,5 @@
 <?php
 
-// Remove old functions for adding/saving custom fields as ACF now handles this.
-// function bwp_add_product_custom_fields() { ... }
-// remove_action('woocommerce_product_options_pricing', 'bwp_add_product_custom_fields');
-// function bwp_save_product_custom_fields($post_id) { ... }
-// remove_action('woocommerce_process_product_meta', 'bwp_save_product_custom_fields');
-
 /**
  * Display fields on the product page
  */
@@ -249,17 +243,13 @@ function bwp_enqueue_scripts()
     if (is_product()) {
         // Enqueue Litepicker from CDN
         wp_enqueue_style('litepicker-css', 'https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css');
-        wp_enqueue_script('litepicker-js', 'https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js', array(), '1.1.2', true); // Added version for Litepicker
+        wp_enqueue_script('litepicker-js', 'https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js', array(), '1.1.2', true);
         
-        // Enqueue our custom booking styles
-        wp_enqueue_style('bwp-booking-css', get_stylesheet_directory_uri() . '/bwp-booking.css', array(), '1.0.0');
-
-        // Ensure bwp-booking-js depends on litepicker-js.
-        wp_enqueue_script('bwp-booking-js', get_stylesheet_directory_uri() . '/bwp-booking.js', array('jquery', 'litepicker-js'), '1.0.2', true); // Version bump & dep update
-        wp_localize_script('bwp-booking-js', 'bwp_booking_params', array(
+        // Localize script parameters
+        wp_localize_script('litepicker-js', 'bwp_booking_params', array(
             'currency_symbol'    => get_woocommerce_currency_symbol(),
-            'ajax_url'           => admin_url('admin-ajax.php'), // If needed for future AJAX operations
-            'currency_pos'       => get_option('woocommerce_currency_pos'), // e.g. 'left', 'right', 'left_space', 'right_space'
+            'ajax_url'           => admin_url('admin-ajax.php'),
+            'currency_pos'       => get_option('woocommerce_currency_pos'),
             'thousand_separator' => wc_get_price_thousand_separator(),
             'decimal_separator'  => wc_get_price_decimal_separator(),
             'decimals'           => wc_get_price_decimals(),

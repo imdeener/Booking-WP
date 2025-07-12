@@ -394,9 +394,7 @@ add_action('wp_ajax_bwp_upload_profile_image', 'bwp_handle_profile_image_upload'
  */
 function bwp_enqueue_profile_assets() {
     if (is_account_page()) {
-        wp_enqueue_style('bwp-profile-styles', plugins_url('css/bwp-profile.css', __FILE__));
-        wp_enqueue_script('bwp-profile-script', plugins_url('js/bwp-profile.js', __FILE__), ['jquery'], null, true);
-        wp_localize_script('bwp-profile-script', 'bwpProfile', [
+        wp_localize_script('jquery', 'bwpProfile', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('bwp_profile_image_nonce')
         ]);

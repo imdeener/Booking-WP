@@ -9,17 +9,10 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-// Enqueue scripts and styles for thank you page
-function bwp_enqueue_thankyou_scripts() {
-    wp_enqueue_script('bwp-thankyou', plugins_url('js/bwp-thankyou.js', __FILE__), array('jquery'), '1.0.0', true);
-}
-add_action('wp_enqueue_scripts', 'bwp_enqueue_thankyou_scripts');
-
 /**
  * Enqueue styles for thank you page
  */
 function bwp_thankyou_enqueue_styles() {
-    wp_enqueue_style('bwp-thankyou-styles', plugins_url('css/bwp-thankyou.css', __FILE__));
     wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 }
 add_action('wp_enqueue_scripts', 'bwp_thankyou_enqueue_styles');
